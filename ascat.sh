@@ -1,17 +1,24 @@
 #Installation source- https://bioconductor.org/packages/devel/bioc/vignettes/maftools/inst/doc/cnv_analysis.html
-conda create --prefix /home/project/11003581/conda-envs/r_env r-base=4.4.0 r-essentials
 
-conda activate /home/project/11003581/conda-envs/r_env
+module load r/4.2.0
 
 R
 
 install.packages("devtools")
-devtools::install_github("VanLoo-lab/ascat")
+devtools::install_github('VanLoo-lab/ascat/ASCAT')
+
+
+Installing package into '/home/users/nus/ash.ps/R/x86_64-pc-linux-gnu-library/4.2'
+
+
 
 if (!require("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
 BiocManager::install("maftools")
+
+BiocManager::install(c('GenomicRanges','IRanges'))
+
 
 library(maftools)
 
