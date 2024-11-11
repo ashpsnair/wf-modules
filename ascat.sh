@@ -65,3 +65,81 @@ plotMosdepth(
   sample_name = "tumor"
 )
 
+##################
+
+setwd("/home/project/11003581/Tools/Ascat/Ascat_git/ascat-3.1.2/ASCAT/R")
+
+source("ascat.asmultipcf.R")
+source("ascat.correctLogR.R")
+source("ascat.metrics.R")
+source("ascat.predictGermlineGenotypes.R")
+source("ascat.prepareTargetedSeq.R")
+source("misc.R")
+source("ascat.aspcf.R")
+source("ascat.loadData.R")
+source("ascat.plots.R")
+source("ascat.prepareHTS.R")
+source("ascat.runAscat.R")
+
+
+
+
+library(maftools)
+setwd('home/project/11003581/Data/ascat')
+
+
+
+#Matched normal BAM files are strongly recommended
+counts = maftools::gtMarkers(t_bam = '/home/project/11003581/Data/Ash/P3L-lab-analysis/sorted_bams/p3292l_hac_sorted.bam',
+                             n_bam = '/home/project/11003581/Data/Ash/P3L-lab-analysis/sorted_bams/WT_MCF10A_hac_sorted.bam',
+                             build = 'hg38')
+
+
+
+#!/bin/bash
+
+#PBS -l select=2:ncpus=64:mem=256gb
+#PBS -l walltime=10:00:00
+#PBS -P 11003581
+#PBS -N trial-maftools
+#PBS -j oe
+
+# Change to the directory where the job was submitted 
+cd $PBS_O_WORKDIR
+
+# Load the R module
+module load r
+
+# Run the R script
+Rscript -e "
+
+
+library(maftools)
+setwd('/home/project/11003581/Data/ascat')
+
+
+
+#Matched normal BAM files are strongly recommended
+counts = maftools::gtMarkers(t_bam = '/home/project/11003581/Data/Ash/P3L-lab-analysis/sorted_bams/p3292l_hac_sorted.bam',
+                             n_bam = '/home/project/11003581/Data/Ash/P3L-lab-analysis/sorted_bams/WT_MCF10A_hac_sorted.bam',
+                             build = 'hg38')
+
+library(ASCAT)
+ascat.bc = maftools::prepAscat(t_counts ='/home/project/11003581/Data/ascat/p3292l_hac_sorted_nucleotide_counts.tsv',
+                               n_counts = '/home/project/11003581/Data/ascat/WT_MCF10A_hac_sorted_nucleotide_counts.tsv',
+                               sample_name = 'p3292l_hac_sorted')
+
+
+ascat.bc = ASCAT::ascat.loadData(
+  Tumor_LogR_file = 'p3292l_hac_sorted_nucleotide_counts.tumour.logR.txt',
+  Tumor_BAF_file = 'p3292l_hac_sorted_nucleotide_counts.tumour.BAF.txt',
+  Germline_LogR_file = 'p3292l_hac_sorted_nucleotide_counts.normal.logR.txt',
+  Germline_BAF_file = 'p3292l_hac_sorted_nucleotide_counts.normal.BAF.txt',
+  chrs = c(1:22, 'X', 'Y'),
+  sexchromosomes = c('X', 'Y')
+)
+
+ASCAT::ascat.plotRawData(ASCATobj = ascat.bc, img.prefix = 'p3292l_hac_sorted')
+ascat.bc = ASCAT::ascat.aspcf(ascat.bc)
+ASCAT::ascat.plotSegmentedData(ascat.bc)
+ascat.output = ASCAT::ascat.runAscat(ascat.bc) 
