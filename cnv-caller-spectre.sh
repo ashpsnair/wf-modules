@@ -26,7 +26,7 @@ mkdir -p $output_dir/spectre
   --sample-id p3l \
   --only-chr chr1,chr2,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr20,chr21,chr22,chrX,chrY \
   --output-dir $output_dir/spectre \
-  --reference /home/project/11003581/Ref/hg38-bgzip.fa.gz
+  --reference /home/project/11003581/Ref/hg38.fa.gz
 
 
 '''
