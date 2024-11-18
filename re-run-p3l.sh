@@ -44,6 +44,12 @@ mkdir $output_dir/mosdepth
 
 mosdepth -t 8 -x -b 1000 -Q 20 $output_dir/mosdepth $output_dir/sorted_bams/p3292l_hac_sorted.bam
 
+'''
+#########bgzip the fasta
+module load bcftools
+
+'''
+
 #Running spectre
 mkdir -p $output_dir/spectre 
 
