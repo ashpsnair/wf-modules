@@ -2,17 +2,26 @@
 
 #Create and activate a conda environment with VEP, its dependencies, and other related tools:
 module load miniforge3
-conda update -y -n base -c defaults conda
-conda config --set solver libmamba
-conda create --prefix /home/project/11003581/conda-envs/ -y 
-conda activate vep
+conda create --prefix /home/project/11003581/conda-envs/vep pip -y
+conda activate /home/project/11003581/conda-envs/vep
 conda install -y -c conda-forge -c bioconda -c defaults ensembl-vep==113.0 htslib==1.20 bcftools==1.20 samtools==1.20 ucsc-liftover==447
+
+vep_install -a cf -s homo_sapiens -y GRCh38 -c /home/project/11003581/Refs/vep --CONVERT
 
 #Download VEP's offline cache for GRCh38, and the reference FASTA:
 mkdir /home/project/11003581/Refs/vep
-wget https://ftp.ensembl.org/pub/release-112/variation/indexed_vep_cache/homo_sapiens_vep_112_GRCh38.tar.gz
-tar -zvf /home/project/11003581/Refs/vep/homo_sapiens_vep_112_GRCh38.tar.gz -C /home/project/11003581/Refs/vep/
+cd /home/project/11003581/Refs/vep
+wget https://ftp.ensembl.org/pub/release-113/variation/indexed_vep_cache/homo_sapiens_vep_113_GRCh38.tar.gz
+tar -zvf /home/project/11003581/Refs/vep/homo_sapiens_vep_113_GRCh38.tar.gz -C /home/project/11003581/Refs/vep/
+wget https://ftp.ensembl.org/pub/release-113/fasta/homo_sapiens/dna_index/Homo_sapiens.GRCh38.dna.toplevel.fa.gz
+wget https://ftp.ensembl.org/pub/release-113/fasta/homo_sapiens/dna_index/Homo_sapiens.GRCh38.dna.toplevel.fa.gz.fai
+wget https://ftp.ensembl.org/pub/release-113/fasta/homo_sapiens/dna_index/Homo_sapiens.GRCh38.dna.toplevel.fa.gz.gzi
 
+
+#Download file from https://ftp.ensembl.org/pub/release-112/fasta/homo_sapiens/dna_index/
+# reference FASTA which we must bgzip instead of gzip
+gzip -d Homo_sapiens.GRCh38.dna.toplevel.fa.gz
+/home/project/11003581/Tools/bin/bgzip Homo_sapiens.GRCh38.dna.toplevel.fa
 
 #vcf to maf
 #source: https://github.com/mskcc/vcf2maf
@@ -36,10 +45,13 @@ perl maf2maf.pl --man
 # Change to the directory where the job was submitted 
 cd $PBS_O_WORKDIR
 
-module load samtools 
+module load miniforge3
+conda activate /home/project/11003581/conda-envs/vep
 
 perl /home/project/11003581/Tools/vcf2maf-1.6.22/vcf2maf.pl \
     --tabix-exec=/home/project/11003581/Tools/bin/tabix \
     --input-vcf=/home/users/nus/ash.ps/scratch/YS-analysis/mutect2-vcfs/T01_vs_N01.mutect2.filtered.vcf \
     --output-maf=/home/users/nus/ash.ps/scratch/YS-analysis/vcf-to-maf/P01.maf \
-    --ref-fasta=/home/project/11003581/Ref/vep/homo_sapiens_vep_113_GRCh38.tar.gz
+    --ref-fasta=/home/project/11003581/Ref/vep/homo_sapiens_vep_113_GRCh38.tar.gz \
+    --vep-path=/home/project/11003581/conda-envs/vep/bin \
+    --vep-data=/home/project/11003581/Ref/vep/
