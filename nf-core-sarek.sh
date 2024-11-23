@@ -25,6 +25,3 @@ patient,sex,status,sample,lane,fastq_1,fastq_2
 1,XY,0,N01,L1,/home/project/11003581/Data/YS-gatk/N01_1.fastq,/home/project/11003581/Data/YS-gatk/N01_2.fastq
 1,XY,1,T01,L1,/home/project/11003581/Data/YS-gatk/T01_1.fastq,/home/project/11003581/Data/YS-gatk/T01_2.fastq
 
-
-
-
