@@ -7,4 +7,9 @@ pip install --upgrade awscli
 aws s3 cp s3://ashok-lab-nccs-data/ /home/users/nus/ash.ps/scratch/LR-NCCS/ --recursive
 
 
-s3/ashok-lab-nccs-data
+##getting genomes
+
+aws s3 --no-sign-request --region eu-west-1 sync s3://ngi-igenomes/igenomes/Homo_sapiens/GATK/hg38/ ./GATK/hg38/
+
+
+
