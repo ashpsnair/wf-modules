@@ -11,17 +11,16 @@ cd $PBS_O_WORKDIR
 # Load necessary modules
 module load gcc
 module load python/3.12.1-gcc11
+module load samtools
 
 ## Tools Directory
 dorado_bin_path="/home/project/11003581/Tools/dorado-0.7.3-linux-x64/bin"
 minimap2_path="/home/project/11003581/Tools/minimap2-2.28_x64-linux/"
-samtools_path="/path/to/samtools"  # Update this path if necessary
-sniffles_path="/path/to/sniffles"    # Update this path if necessary
 
 fast5_dir="/home/project/11003581/Data/HC/ONT/P3292L/TJPROJ6/TGS/haiwai/haiwai/HW_ONT_qc/X401SC23084120-Z01-F001/data_release/X401SC23084120-Z01-F001/raw_data/P3292L/20231210_1504_6G_PAS94472_b08ff6e9/fast5_pass/"
 output_dir="/home/project/11003581/Data/P3L-shallow"
 samplename="p3l_shallow"
-ref_fasta="/path/to/reference.fasta"  # Specify the reference fasta path
+ref_fasta="/home/project/11003581/Ref/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna" 
 
 # Convert each fast5 to its relative converted output
 mkdir -p "$output_dir/pod5/"
@@ -58,6 +57,7 @@ mkdir -p "$output_dir/mosdepth"
 mosdepth -t 8 -x -b 1000 -Q 20 "$output_dir/mosdepth/${samplename}" "$output_dir/sorted_bams/${samplename}_sorted.bam"
 
 mkdir -p "$output_dir/spectre"
+
 # Ensure the path to spectre is correct
 /home/project/11003581/conda-envs/spectre/bin/spectre CNVCaller \
   --coverage "$output_dir/mosdepth/${samplename}.regions.bed.gz" \
