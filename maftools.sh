@@ -41,7 +41,6 @@ ascat.output = ASCAT::ascat.runAscat(ascat.bc)
 
 maftools::segmentLogR(tumor_logR = "tumor.tumour.logR.txt", sample_name = "tumor")
 
-
 "
 
 

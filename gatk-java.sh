@@ -25,8 +25,8 @@ export JAVA_HOME=/home/project/11003581/Tools/jdk-23.0.1
 export PATH=$JAVA_HOME/bin:$PATH
 
 gatk Mutect2 \
-  -R /home/project/11003581/Ref/hg38.fa.gz \
-  -I /home/users/nus/ash.ps/scratch/YS-batch2/preprocessing/recalibrated/T08/T08.recal.cram \
-  -I /home/users/nus/ash.ps/scratch/YS-batch2/preprocessing/recalibrated/N08/N08.recal.cram \
-  --normal-sample T08_vs_N08 \
-  --output /home/users/nus/ash.ps/scratch/mutect2-ys8/T08_vs_N08.vcf.gz \
+  -R /home/project/11003581/Ref/Homo_sapiens/GATK/hg38/Homo_sapiens_assembly38.fasta \
+  -I /home/users/nus/ash.ps/scratch/YS-analysis/bwa2-bams/p08-tumor.bam \
+  -I /home/users/nus/ash.ps/scratch/YS-analysis/bwa2-bams/p08-normal.bam \
+  --normal-sample p08-normal \
+  --output /home/users/nus/ash.ps/scratch/YS-analysis/mutect-vcfs/T08_vs_N08.vcf.gz \
