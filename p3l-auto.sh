@@ -40,22 +40,35 @@ samtools index "$output_dir/sorted_bams/${samplename}_sorted.bam"
 
 ########## SV calling using Sniffles #####
 mkdir -p "$output_dir/sniffles_out"
+mkdir -p "$output_dir/sniffles_out/plots/"
 
-module load python/3.12.1-gcc11
 sniffles -i "$output_dir/sorted_bams/${samplename}_sorted.bam" \
         -v "$output_dir/sniffles_out/${samplename}_sniffles.vcf" \
         --reference "$ref_fasta"
 
 ####### Sniffles Plot
-/home/users/nus/ash.ps/anaconda3/bin/python3.8 -m sniffles2_plot -i "$output_dir/sniffles_out/${samplename}_sniffles.vcf" -o "./output"
+python3 -m sniffles2_plot -i "$output_dir/sniffles_out/${samplename}_sniffles.vcf" -o "$output_dir/sniffles_out/plots/"
 
-######### Spectre
+######### Running Mosdepth
 module load miniforge3
 conda activate /home/project/11003581/conda-envs/spectre
 
 mkdir -p "$output_dir/mosdepth"
 mosdepth -t 8 -x -b 1000 -Q 20 "$output_dir/mosdepth/${samplename}" "$output_dir/sorted_bams/${samplename}_sorted.bam"
 
+########## R Script for Plotting Mosdepth ##########
+Rscript -e "
+setwd('$output_dir/mosdepth/')
+library(maftools)
+plotMosdepth(
+  t_bed = '${samplename}.regions.bed.gz',
+  n_bed = '/home/project/11003581/Data/Ash/P3L-lab-analysis/mosdepth/wt/wt.regions.bed.gz',
+  segment = TRUE,
+  sample_name = '$samplename'
+)
+"
+
+#Running Spectre
 mkdir -p "$output_dir/spectre"
 
 # Ensure the path to spectre is correct

@@ -22,3 +22,4 @@ module load singularity
     --sex XY \
 	-profile singularity \
     --threads 64
+
