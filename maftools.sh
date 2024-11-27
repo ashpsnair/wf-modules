@@ -26,20 +26,20 @@ ascat.bc = maftools::prepAscat(t_counts = '/home/project/11003581/Data/Ash/P3L-l
                                sample_name = 'tumor')
 
 ascat.bc = ASCAT::ascat.loadData(
-  Tumor_LogR_file = "tumor.tumour.logR.txt",
-  Tumor_BAF_file = "tumor.tumour.BAF.txt",
-  Germline_LogR_file = "tumor.normal.logR.txt",
-  Germline_BAF_file = "tumor.normal.BAF.txt",
-  chrs = c(1:22, "X", "Y"),
-  sexchromosomes = c("X", "Y")
+  Tumor_LogR_file = 'tumor.tumour.logR.txt',
+  Tumor_BAF_file = 'tumor.tumour.BAF.txt',
+  Germline_LogR_file = 'tumor.normal.logR.txt',
+  Germline_BAF_file = 'tumor.normal.BAF.txt',
+  chrs = c(1:22, 'X', 'Y'),
+  sexchromosomes = c('X', 'Y')
 )
 
-ASCAT::ascat.plotRawData(ASCATobj = ascat.bc, img.prefix = "tumor")
+ASCAT::ascat.plotRawData(ASCATobj = ascat.bc, img.prefix = 'tumor')
 ascat.bc = ASCAT::ascat.aspcf(ascat.bc)
 ASCAT::ascat.plotSegmentedData(ascat.bc)
 ascat.output = ASCAT::ascat.runAscat(ascat.bc) 
 
-maftools::segmentLogR(tumor_logR = "tumor.tumour.logR.txt", sample_name = "tumor")
+maftools::segmentLogR(tumor_logR = 'tumor.tumour.logR.txt', sample_name = 'tumor')
 
 "
 
@@ -71,3 +71,24 @@ plotMosdepth(
 "
 
 '''
+
+
+ascat.bc = maftools::prepAscat(t_counts = '/home/project/11003581/Data/P3L-shallow/R-maftools/p3l_shallow_sorted_nucleotide_counts.tsv',
+                                n_counts = '/home/project/11003581/Data/P3L-shallow/R-maftools/WT_MCF10A_hac_sorted_nucleotide_counts.tsv',
+                                sample_name = 'tumor')
+
+ascat.bc = ASCAT::ascat.loadData(
+  Tumor_LogR_file = 'tumor.tumour.logR.txt',
+  Tumor_BAF_file = 'tumor.tumour.BAF.txt',
+  Germline_LogR_file = 'tumor.normal.logR.txt',
+  Germline_BAF_file = 'tumor.normal.BAF.txt',
+  chrs = c(1:22, 'X', 'Y'),
+  sexchromosomes = c('X', 'Y')
+)
+
+ASCAT::ascat.plotRawData(ASCATobj = ascat.bc, img.prefix = 'tumor')
+ascat.bc = ASCAT::ascat.aspcf(ascat.bc)
+ASCAT::ascat.plotSegmentedData(ascat.bc)
+ascat.output = ASCAT::ascat.runAscat(ascat.bc) 
+
+maftools::segmentLogR(tumor_logR = 'tumor.tumour.logR.txt', sample_name = 'tumor')
