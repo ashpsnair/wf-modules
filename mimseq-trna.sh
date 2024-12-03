@@ -8,6 +8,10 @@ conda activate /home/project/11003581/conda-envs/mimseq
 
 conda install -c bioconda mimseq
 
+#check version
+conda activate /home/project/11003581/conda-envs/mimseq
+mimseq --version
+
 '''
 
 

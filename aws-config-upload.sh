@@ -11,5 +11,6 @@ aws s3 sync s3://ashok-lab-nccs-data/ /home/users/nus/ash.ps/scratch/LR-NCCS/ --
 
 aws s3 --no-sign-request --region eu-west-1 sync s3://ngi-igenomes/igenomes/Homo_sapiens/GATK/hg38/ ./GATK/hg38/
 
-
+#get the size of bucket
+aws s3 ls s3://ashok-lab-nccs-data/ --human-readable --summarize
 
