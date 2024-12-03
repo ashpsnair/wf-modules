@@ -42,3 +42,44 @@ annotate_variation.pl -buildver hg19 -downdb -webfrom annovar avsnp151 humandb/
 annotate_variation.pl -buildver hg19 -downdb -webfrom annovar dbnsfp47a humandb/
 
 '''
+
+### Automated annovar script
+
+#!/bin/bash
+
+#PBS -l select=1:ncpus=16
+#PBS -l walltime=00:30:00
+#PBS -P 11003581
+#PBS -N auto-annovar-hg38
+#PBS -j oe
+
+# Change to the directory where the job was submitted 
+cd $PBS_O_WORKDIR
+
+# Define the input and output directories
+input_dir="/home/users/nus/ash.ps/scratch/YS-analysis/mutect2-vcfs"
+output_dir="/home/users/nus/ash.ps/scratch/YS-analysis/annovar"
+
+# Create output directory if it doesn't exist
+mkdir -p "$output_dir"
+
+for vcf_file in "$input_dir"/*mutect2.vcf; do
+  # Extract the filename without the '.mutect2.vcf' extension
+  samplename=$(basename "$vcf_file" .mutect2.vcf)
+
+  # Print the sample name
+  echo "Processing sample: $samplename"
+
+  # Create a corresponding output directory
+  mkdir -p "$output_dir/$samplename"
+
+  # Run the table_annovar.pl script with the appropriate parameters
+  perl /home/project/11003581/Tools/annovar/table_annovar.pl "$vcf_file" \
+      /home/project/11003581/Tools/annovar/humandb/ \
+      -buildver hg38 \
+      -out "$output_dir/$samplename/$samplename" \
+      -protocol refGene,GTEx_v8_eQTL,cosmic70,exac03,gnomad_genome,1000g2015aug \
+      -operation gx,g,g,f,f,f \
+      -remove -csvout -polish -nastring .
+
+done
