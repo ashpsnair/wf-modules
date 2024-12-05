@@ -190,3 +190,29 @@ module load singularity
    --tools mutect2,ascat,manta,snpeff,vep,merge,haplotypecaller,msisensorpro \
    -resume
 
+####################################################
+# Running tumor only for all normals
+####################################################
+
+#!/bin/bash
+
+#PBS -l select=3:ncpus=64:mem=128g
+#PBS -l walltime=24:00:00
+#PBS -P 11003581
+#PBS -N YS-TO
+#PBS -j oe
+
+# Change to the directory where the job was submitted 
+cd $PBS_O_WORKDIR
+
+
+module load java/17.0.6-jdk
+module load singularity
+
+/home/project/11003581/Tools/nextflow run nf-core/sarek -r 3.4.4 \
+   -profile singularity \
+   --input /home/users/nus/ash.ps/scratch/YS-tumor-only/YS8-14/samplesheet.csv \
+   --outdir /home/users/nus/ash.ps/scratch/YS-tumor-only/YS8-14/ \
+   --tools mutect2,ascat,manta,snpeff,vep,msisensorpro \
+   --pon /home/project/11003581/Ref/pons/somatic-hg38_1000g_pon.hg38.vcf.gz \
+   --pon_tbi /home/project/11003581/Ref/pons/somatic-hg38_1000g_pon.hg38.vcf.gz.tbi
