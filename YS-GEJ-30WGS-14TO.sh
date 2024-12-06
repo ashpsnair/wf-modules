@@ -216,3 +216,58 @@ module load singularity
    --tools mutect2,ascat,manta,snpeff,vep,msisensorpro \
    --pon /home/project/11003581/Ref/pons/somatic-hg38_1000g_pon.hg38.vcf.gz \
    --pon_tbi /home/project/11003581/Ref/pons/somatic-hg38_1000g_pon.hg38.vcf.gz.tbi
+
+
+####################################################
+# Annotating the files
+####################################################
+#!/bin/bash
+
+#PBS -l select=2:ncpus=64:mem=256g
+#PBS -l walltime=18:00:00
+#PBS -P 11003581
+#PBS -N YS-annotation-except 13
+#PBS -j oe
+
+# Change to the directory where the job was submitted 
+cd $PBS_O_WORKDIR
+
+
+module load java/17.0.6-jdk
+module load singularity
+
+/home/project/11003581/Tools/nextflow run nf-core/sarek -r 3.4.4 \
+   -profile singularity \
+   --step annotate \
+   --input /home/users/nus/ash.ps/scratch/YS-rerun-nf/YS5-8/samplesheet.csv \
+   --outdir /home/users/nus/ash.ps/scratch/YS-rerun-nf/YS5-8/ \
+   --tools snpeff,vep,merge
+
+
+patient,sample,variantcaller,vcf
+patient05,T05_vs_N05,mutect2,/home/users/nus/ash.ps/scratch/YS-rerun-nf/YS5-8//variant_calling/mutect2/T05_vs_N05/T05_vs_N05.mutect2.filtered.vcf.gz
+patient06,T06_vs_N06,mutect2,/home/users/nus/ash.ps/scratch/YS-rerun-nf/YS5-8//variant_calling/mutect2/T06_vs_N06/T06_vs_N06.mutect2.filtered.vcf.gz
+patient07,T07_vs_N07,mutect2,/home/users/nus/ash.ps/scratch/YS-rerun-nf/YS5-8//variant_calling/mutect2/T07_vs_N07/T07_vs_N07.mutect2.filtered.vcf.gz
+patient08,T08_vs_N08,mutect2,/home/users/nus/ash.ps/scratch/YS-rerun-nf/YS5-8//variant_calling/mutect2/T08_vs_N08/T08_vs_N08.mutect2.filtered.vcf.gz
+patient09,T09_vs_N09,mutect2,/home/users/nus/ash.ps/scratch/YS-rerun-nf/YS9-11//variant_calling/mutect2/T09_vs_N09/T09_vs_N09.mutect2.filtered.vcf.gz
+patient10,T10_vs_N10,mutect2,/home/users/nus/ash.ps/scratch/YS-rerun-nf/YS9-11//variant_calling/mutect2/T10_vs_N10/T10_vs_N10.mutect2.filtered.vcf.gz
+patient11,T11_vs_N11,mutect2,/home/users/nus/ash.ps/scratch/YS-rerun-nf/YS9-11//variant_calling/mutect2/T11_vs_N11/T11_vs_N11.mutect2.filtered.vcf.gz
+patient12,T12_vs_N12,mutect2,/home/users/nus/ash.ps/scratch/YS-rerun-nf/YS12-14//variant_calling/mutect2/T12_vs_N12/T12_vs_N12.mutect2.filtered.vcf.gz
+patient14,T14_vs_N14,mutect2,/home/users/nus/ash.ps/scratch/YS-rerun-nf/YS12-14//variant_calling/mutect2/T14_vs_N14/T14_vs_N14.mutect2.filtered.vcf.gz
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
