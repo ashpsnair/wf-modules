@@ -1,3 +1,23 @@
+'''
+
+module load miniforge3
+conda create --prefix /home/project/11003581/conda-envs/sigprofile python=3.9.12
+
+conda activate /home/project/11003581/conda-envs/sigprofile
+pip install SigProfilerExtractor
+
+conda install r-base r-devtools r-reticulate -c conda-forge -y
+
+python
+from SigProfilerMatrixGenerator import install as genInstall
+genInstall.install('GRCh38', rsync=True, bash=True)
+
+However, it wasnt working fr=or me so i manually copied the grch38 form local system
+copied required files to /home/project/11003581/conda-envs/sigprofile/lib/python3.9/site-packages/SigProfilerMatrixGenerator/references/chromosomes/tsb/
+
+'''
+
+
 ############# categorizing the files based on tumor ############
 
 #!/bin/bash
@@ -34,13 +54,13 @@ done
 echo "Categorization complete."
 
 
-####################### Making folders of categories ############
+####################### Generating matrix files for each of the categories ############
 
 #!/bin/bash
-#PBS -l select=1:ncpus=32
+#PBS -l select=1:ncpus=128:mem=128gb
 #PBS -l walltime=01:00:00
 #PBS -P 11003581
-#PBS -N categorize
+#PBS -N matrixgen
 #PBS -j oe
 
 # Change to the directory where the job was submitted 
@@ -49,6 +69,8 @@ cd $PBS_O_WORKDIR
 module load miniforge3
 conda activate /home/project/11003581/conda-envs/sigprofile
 
+# Create a temporary Python script
+cat << EOF > run_sigprofiler.py
 import os
 from SigProfilerMatrixGenerator.scripts import SigProfilerMatrixGeneratorFunc as matGen
 
@@ -79,15 +101,77 @@ for category_folder in os.listdir(input_dir):
         print(f"Completed processing for category: {category_folder}")
 
 print("All categories processed.")
+EOF
+
+# Run the Python script
+python run_sigprofiler.py
+
+# Clean up the temporary Python script
+rm run_sigprofiler.py
 
 
+################## Extracting signatures using sigprofile extractor #############
 
+#!/bin/bash
+#PBS -l select=1:ncpus=128:mem=128gb
+#PBS -l walltime=01:00:00
+#PBS -P 11003581
+#PBS -N run-sigprofile-extractor
+#PBS -j oe
 
+# Change to the directory where the job was submitted 
+cd $PBS_O_WORKDIR
 
+module load miniforge3
+conda activate /home/project/11003581/conda-envs/sigprofile
 
+# Change to the directory where the script is submitted from
+cd $PBS_O_WORKDIR
 
+# Create a temporary Python script
+cat << EOF > run_sigprofile-extractor.py
 
+import os
+import glob
+from SigProfilerExtractor import sigpro as sig
 
+# Set the path to the directory containing your folders
+input_dir = "/home/users/nus/ash.ps/scratch/YS-analysis/filter-annovar/Tumor"
 
+# Get all immediate subdirectories
+subfolders = [f.path for f in os.scandir(input_dir) if f.is_dir()]
 
+for folder in subfolders:
+    print(f"Processing folder: {folder}")
+    
+    # Find the SBS96.all file
+    sbs_files = glob.glob(os.path.join(folder, "output", "SBS", "*SBS96.all"))
+    
+    if not sbs_files:
+        print(f"No SBS96.all file found in {folder}. Skipping...")
+        continue
+    
+    input_matrix = sbs_files[0]  # Take the first (and hopefully only) matching file
+    
+    # Run SigProfilerExtractor
+    sig.sigProfilerExtractor(
+        "matrix",                   # Input type (matrix file)
+        "sigprofileExtractor_results",                 # Output directory
+        input_matrix,               # Input matrix file
+        minimum_signatures=1,       # Minimum number of signatures to extract
+        maximum_signatures=10,      # Maximum number of signatures to extract
+        nmf_replicates=100         # Number of NMF replicates
+    )
+
+    print(f"SigProfilerExtractor analysis complete for {folder}. Results are in: {output_dir}")
+
+print("All folders processed.")
+
+EOF
+
+# Run the Python script
+python run_sigprofile-extractor.py
+
+# Clean up the temporary Python script
+rm run_sigprofile-extractor.py
 
