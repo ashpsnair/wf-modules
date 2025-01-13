@@ -20,4 +20,3 @@ aws s3api list-objects --bucket ashok-lab-nccs-data --query "Contents[?StorageCl
 #### copying the files that are in the the text files
 aws s3 sync s3://ashok-lab-nccs-data <destination> --exclude "*" --include "$(cat standard_files.txt | tr '\n' ' ')"
 
-

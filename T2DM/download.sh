@@ -4,12 +4,29 @@ https://www.ncbi.nlm.nih.gov/Traces/study/?acc=SRP513973&o=library_name_s%3Aa&s=
 
 /home/project/11003581/Tools/sratoolkit.3.1.1-ubuntu64/bin/fastq-dump SRR29728988
 
+#!/bin/bash
+#PBS -l select=1:ncpus=64
+#PBS -l walltime=12:00:00
+#PBS -P 11003581
+#PBS -N download-nih
+#PBS -j oe
+
+# Change to the directory where the job was submitted 
+cd $PBS_O_WORKDIR
+
+module load gcc
+module load python/3.12.1-gcc11
+
+# Create a temporary Python script
+cat << EOF > download-t2dm.py
 
 import subprocess
 
 # samples correspond to the project
 sra_numbers = [
-    "SRR29413843", "SRR29413844", "SRR29413845", "SRR29413846", "SRR29413847", "SRR29413848", "SRR29413849", "SRR29413850", "SRR29413851", "SRR29413852", "SRR29413853", "SRR29413854", "SRR29413855", "SRR29413856", "SRR29413857", "SRR29413858", "SRR29413859", "SRR29728988", "SRR29728989", "SRR29728990", "SRR29728991", "SRR29728992", "SRR29728993", "SRR29728994", "SRR29728995", "SRR29728996", "SRR29728997", "SRR29728998", "SRR29728999", "SRR29729000", "SRR29729001", "SRR29729002", "SRR29729003", "SRR29729004", "SRR29729005", "SRR29729006"
+    "SRR29413850", "SRR29729001", "SRR29729000", "SRR29728999", "SRR29728998", 
+    "SRR29728997", "SRR29728996", "SRR29413847", "SRR29413852", "SRR29413851", 
+    "SRR29729002"
 ]
 
 
@@ -23,8 +40,14 @@ for sra_id in sra_numbers:
 # this will extract the .sra files from above into a folder named 'fastq'
 for sra_id in sra_numbers:
     print ("Generating fastq for: " + sra_id)
-    fastq_dump = "/home/project/11003581/Tools/sratoolkit.3.1.1-ubuntu64/bin/fastq-dump --outdir fastq --gzip --skip-technical  --readids --read-filter pass --dumpbase --split-3 --clip ~/ncbi/public/sra/" + sra_id + ".sra"
+    fastq_dump = "/home/project/11003581/Tools/sratoolkit.3.1.1-ubuntu64/bin/fastq-dump --outdir fastq --gzip --skip-technical  --readids --read-filter pass --dumpbase --split-3 --clip /home/users/nus/ash.ps/scratch/T2DM" + sra_id + ".sra"
     print ("The command used was: " + fastq_dump)
     subprocess.call(fastq_dump, shell=True)
 
+EOF
 
+# Run the Python script
+python download-t2dm.py
+
+# Clean up the temporary Python script
+rm download-t2dm.py
