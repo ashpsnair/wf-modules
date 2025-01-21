@@ -13,17 +13,6 @@
 # Change to the directory where the job was submitted 
 cd $PBS_O_WORKDIR
 
-#!/bin/bash
-
-#PBS -l select=1
-#PBS -l walltime=2:00:00
-#PBS -P 11003581
-#PBS -N concatenating-fq
-#PBS -j oe
-
-# Change to the directory where the job was submitted 
-cd $PBS_O_WORKDIR
-
 # Define the paths
 rawdata="/home/project/11003581/Data/YS1/01.RawData"
 analysis_folder="/home/project/11003581/Data/YS-analysis/"

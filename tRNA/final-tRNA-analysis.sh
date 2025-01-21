@@ -95,3 +95,25 @@ mimseq --species Hsap --cluster-id 0.97 --threads 128 --min-cov 0.0005 \
     --max-multi 4 --remap --remap-mismatches 0.05 sample.txt
 
 
+############# getting the seq lengths ###############
+#!/bin/bash
+
+#PBS -l select=1:ncpus=128
+#PBS -l walltime=2:00:00
+#PBS -P 11003581
+#PBS -N run-seq-length
+#PBS -j oe
+
+
+output_file="/home/project/11003581/Data/JQQ/sequence_counts.txt"
+
+echo "Filename,Sequence Count" > "$output_file"
+
+for file in /home/project/11003581/Data/JQQ/01.RawData/*/*.fq.gz; do
+    filename=$(basename "$file")
+    count=$(zcat "$file" | awk 'END{print NR/4}')
+    echo "$filename,$count" >> "$output_file"
+done
+
+echo "Sequence counts have been written to $output_file"
+

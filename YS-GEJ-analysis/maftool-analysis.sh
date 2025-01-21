@@ -174,3 +174,14 @@ cat('Processing complete.\n')
 
 
 "
+
+
+
+############## Plotting and analysisng using maftools ###########################
+
+library(maftools)
+
+laml = read.maf(maf = /home/users/nus/ash.ps/scratch/YS-analysis/mafs/Tumor/High_tumor.maf, clinicalData = /home/users/nus/ash.ps/scratch/YS-analysis/mafs/Tumor/YS-metadata.csv)
+
+
+

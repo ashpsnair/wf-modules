@@ -60,7 +60,7 @@ echo "Categorization complete."
 #PBS -l select=1:ncpus=128:mem=128gb
 #PBS -l walltime=01:00:00
 #PBS -P 11003581
-#PBS -N matrixgen
+#PBS -N run-matrixgen
 #PBS -j oe
 
 # Change to the directory where the job was submitted 
@@ -74,7 +74,7 @@ cat << EOF > run_sigprofiler.py
 import os
 from SigProfilerMatrixGenerator.scripts import SigProfilerMatrixGeneratorFunc as matGen
 
-input_dir = "/home/users/nus/ash.ps/scratch/YS-analysis/filter-annovar/Tumor"
+input_dir = "/home/users/nus/ash.ps/scratch/YS-analysis/multianno-filtered/"
 
 # Iterate through each folder in the input directory
 for category_folder in os.listdir(input_dir):
@@ -114,7 +114,7 @@ rm run_sigprofiler.py
 
 #!/bin/bash
 #PBS -l select=1:ncpus=128:mem=128gb
-#PBS -l walltime=01:00:00
+#PBS -l walltime=10:00:00
 #PBS -P 11003581
 #PBS -N run-sigprofile-extractor
 #PBS -j oe
@@ -144,24 +144,15 @@ subfolders = [f.path for f in os.scandir(input_dir) if f.is_dir()]
 for folder in subfolders:
     print(f"Processing folder: {folder}")
     
+    # Change directory to the current folder
+    os.chdir(folder)
+
     # Find the SBS96.all file
-    sbs_files = glob.glob(os.path.join(folder, "output", "SBS", "*SBS96.all"))
-    
-    if not sbs_files:
-        print(f"No SBS96.all file found in {folder}. Skipping...")
-        continue
-    
-    input_matrix = sbs_files[0]  # Take the first (and hopefully only) matching file
-    
+    sbs_file = glob.glob(os.path.join("output", "SBS", "*SBS96.all"))
+    input_matrix= sbs_file[0]
+
     # Run SigProfilerExtractor
-    sig.sigProfilerExtractor(
-        "matrix",                   # Input type (matrix file)
-        "sigprofileExtractor_results",                 # Output directory
-        input_matrix,               # Input matrix file
-        minimum_signatures=1,       # Minimum number of signatures to extract
-        maximum_signatures=10,      # Maximum number of signatures to extract
-        nmf_replicates=100         # Number of NMF replicates
-    )
+    sig.sigProfilerExtractor("matrix", "sigpro_extract", input_matrix, reference_genome="GRCh38", opportunity_genome="GRCh38", minimum_signatures=1, maximum_signatures=10, nmf_replicates=100)
 
     print(f"SigProfilerExtractor analysis complete for {folder}. Results are in: {output_dir}")
 
@@ -175,3 +166,62 @@ python run_sigprofile-extractor.py
 # Clean up the temporary Python script
 rm run_sigprofile-extractor.py
 
+#######################################################
+
+############# categorizing the files based on tumor ############
+
+#!/bin/bash
+#PBS -l select=1
+#PBS -l walltime=00:05:00
+#PBS -P 11003581
+#PBS -N categorize
+#PBS -j oe
+
+# Change to the directory where the job was submitted 
+cd $PBS_O_WORKDIR
+
+
+INPUT_OUTPUT_DIR="/home/users/nus/ash.ps/scratch/YS-analysis/VCFs/"
+
+# Create category subdirectories
+mkdir -p "$INPUT_OUTPUT_DIR/Normal" "$INPUT_OUTPUT_DIR/Tumor" "$INPUT_OUTPUT_DIR/Tumor-only"
+
+# Loop through all .vcf files in the directory
+for vcf_file in "$INPUT_OUTPUT_DIR"/*.vcf; do
+    filename=$(basename "$vcf_file")
+
+    if [[ $filename == *"_vs_"* ]]; then
+        mv "$vcf_file" "$INPUT_OUTPUT_DIR/Tumor/"
+    elif [[ $filename == T* ]]; then
+        mv "$vcf_file" "$INPUT_OUTPUT_DIR/Tumor-only/"
+    elif [[ $filename == N* ]]; then
+        mv "$vcf_file" "$INPUT_OUTPUT_DIR/Normal/"
+    else
+        echo "Unknown category for file: $filename"
+    fi
+done
+
+echo "Categorization complete."
+
+
+
+
+
+############################################ TRIAL for automating sigprofile extractor ###############################
+#!/bin/bash
+#PBS -l select=1:ncpus=128:mem=128gb
+#PBS -l walltime=10:00:00
+#PBS -P 11003581
+#PBS -N run-sigprofile-extractor
+#PBS -j oe
+
+# Change to the directory where the job was submitted 
+cd $PBS_O_WORKDIR
+
+module load miniforge3
+conda activate /home/project/11003581/conda-envs/sigprofile
+
+# Change to the directory where the script is submitted from
+cd $PBS_O_WORKDIR
+
+# Create a temporary Python script
