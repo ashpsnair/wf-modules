@@ -45,9 +45,6 @@ for sra_id in sra_numbers:
     print ("The command used was: " + fastq_dump)
     subprocess.call(fastq_dump, shell=True)
 
-
-
-
 EOF
 
 # Run the Python script
@@ -69,7 +66,7 @@ rm download-t2dm.py
 ########## Extract PD-DM samples
 
 #!/bin/bash
-#PBS -l select=4:ncpus=64:mem=128g
+#PBS -l select=2:ncpus=64:mem=128g
 #PBS -l walltime=15:00:00
 #PBS -P 11003581
 #PBS -N run-extract
@@ -98,7 +95,7 @@ sra_numbers = [
 for sra_id in sra_numbers:
     # this will extract the .sra files from above into a folder named 'fastq'
     print ("Generating fastq for: " + sra_id)
-    fastq_dump = "/home/project/11003581/Tools/sratoolkit.3.1.1-ubuntu64/bin/fastq-dump --gzip --outdir /home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/ --skip-technical --read-filter pass --dumpbase --split-3 --clip /home/users/nus/ash.ps/scratch/T2DM/PD-DM/" + sra_id + "/" + sra_id + ".sra"
+    fastq_dump = "/home/project/11003581/Tools/sratoolkit.3.1.1-ubuntu64/bin/fasterq-dump -e 128 -m 128 --outdir /home/users/nus/ash.ps/scratch/T2DM/PD/fastq/ --skip-technical --split-3 /home/users/nus/ash.ps/scratch/T2DM/PD/" + sra_id
     print ("The command used was: " + fastq_dump)
     subprocess.call(fastq_dump, shell=True)
 
@@ -123,11 +120,9 @@ rm extract.py
     "SRR29729004", "SRR29729003"
 ]
 
-######################################################
-########## extracting PD samples
 #!/bin/bash
-#PBS -l select=1:ncpus=64:mem=128g
-#PBS -l walltime=15:00:00
+#PBS -l select=3:ncpus=128:mem=128g
+#PBS -l walltime=24:00:00
 #PBS -P 11003581
 #PBS -N run-extract-pd
 #PBS -j oe
@@ -145,7 +140,7 @@ import subprocess
 
 # samples correspond to the project
 sra_numbers = [
- "SRR29413853", "SRR29413854", "SRR29728994", "SRR29728993", "SRR29728992",
+  "SRR29728994", "SRR29728993", "SRR29728992",
     "SRR29728991", "SRR29728990", "SRR29728989", "SRR29413858", "SRR29728988",
     "SRR29729004", "SRR29729003"
 ]
@@ -155,7 +150,7 @@ sra_numbers = [
 for sra_id in sra_numbers:
     # this will extract the .sra files from above into a folder named 'fastq'
     print ("Generating fastq for: " + sra_id)
-    fastq_dump = "/home/project/11003581/Tools/sratoolkit.3.1.1-ubuntu64/bin/fastq-dump --gzip --outdir /home/users/nus/ash.ps/scratch/T2DM/PD/fastq/ --skip-technical --read-filter pass --dumpbase --split-3 --clip /home/users/nus/ash.ps/scratch/T2DM/PD/" + sra_id + "/" + sra_id + ".sra"
+    fastq_dump = "/home/project/11003581/Tools/sratoolkit.3.1.1-ubuntu64/bin/fasterq-dump -e 128 -m 128 --outdir /home/users/nus/ash.ps/scratch/T2DM/PD/fastq/ --skip-technical --split-3 /home/users/nus/ash.ps/scratch/T2DM/PD/" + sra_id
     print ("The command used was: " + fastq_dump)
     subprocess.call(fastq_dump, shell=True)
 
@@ -166,3 +161,18 @@ python extract.py
 
 # Clean up the temporary Python script
 rm extract.py
+
+
+##### gzipping fastq files using pigz
+
+#!/bin/bash
+#PBS -l select=1:ncpus=128:mem=128g
+#PBS -l walltime=4:00:00
+#PBS -P 11003581
+#PBS -N pigz-gzip
+#PBS -j oe
+
+# Change to the directory where the job was submitted 
+cd $PBS_O_WORKDIR
+
+/home/project/11003581/Tools/pigz-2.8/pigz -k SRR29413858_1.fastq -p64

@@ -38,8 +38,8 @@ module load singularity
    --tools mutect2,manta \
    --max_cpus 128 \
    --max_memory '256.GB' \
-   --pon /home/project/11003581/Ref/pons/somatic-hg38_1000g_pon.hg38.vcf.gz \
-   --pon_tbi /home/project/11003581/Ref/pons/somatic-hg38_1000g_pon.hg38.vcf.gz.tbi
+   --pon /home/project/11003581/Ref/pons/1000g_pon.hg38.vcf.gz \
+   --pon_tbi /home/project/11003581/Ref/pons/1000g_pon.hg38.vcf.gz.tbi
 
 
 #samplesheet.csv batch1
@@ -100,8 +100,8 @@ module load singularity
    --tools mutect2,manta \
    --max_cpus 128 \
    --max_memory '256.GB' \
-   --pon /home/project/11003581/Ref/pons/somatic-hg38_1000g_pon.hg38.vcf.gz \
-   --pon_tbi /home/project/11003581/Ref/pons/somatic-hg38_1000g_pon.hg38.vcf.gz.tbi
+   --pon /home/project/11003581/Ref/pons/1000g_pon.hg38.vcf.gz \
+   --pon_tbi /home/project/11003581/Ref/pons/1000g_pon.hg38.vcf.gz.tbi
 
 #  PD batch 1
 patient,status,sample,lane,fastq_1,fastq_2
