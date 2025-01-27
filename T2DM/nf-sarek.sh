@@ -42,23 +42,23 @@ module load singularity
    --pon_tbi /home/project/11003581/Ref/pons/1000g_pon.hg38.vcf.gz.tbi
 
 
+##amplesheet.csv trial 1
+patient,status,sample,lane,fastq_1,fastq_2
+SRR29413850,1,SRR29413850,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29413850_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29413850_2.fastq.gz
+SRR29729001,1,SRR29729001,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29729001_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29729001_2.fastq.gz
+
 #samplesheet.csv batch1
 patient,status,sample,lane,fastq_1,fastq_2
-SRR29413850,1,SRR29413850,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29413850_pass_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29413850_pass_2.fastq.gz
-SRR29729001,1,SRR29729001,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29729001_pass_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29729001_pass_2.fastq.gz
-SRR29728999,1,SRR29728999,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29728999_pass_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29728999_pass_2.fastq.gz
-SRR29728998,1,SRR29728998,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29728998_pass_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29728998_pass_2.fastq.gz
-SRR29728997,1,SRR29728997,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29728997_pass_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29728997_pass_2.fastq.gz
-
+SRR29728999,1,SRR29728999,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29728999_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29728999_2.fastq.gz
+SRR29728998,1,SRR29728998,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29728998_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29728998_2.fastq.gz
+SRR29728997,1,SRR29728997,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29728997_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29728997_2.fastq.gz
 
 #samplesheet.csv batch2
 patient,status,sample,lane,fastq_1,fastq_2
-SRR29728996,1,SRR29728996,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29728996_pass_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29728996_pass_2.fastq.gz
-SRR29413847,1,SRR29413847,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29413847_pass_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29413847_pass_2.fastq.gz
-SRR29413852,1,SRR29413852,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29413852_pass_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29413852_pass_2.fastq.gz
-SRR29413851,1,SRR29413851,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29413851_pass_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29413851_pass_2.fastq.gz
-SRR29729002,1,SRR29729002,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29729002_pass_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29729002_pass_2.fastq.gz
-
+SRR29728996,1,SRR29728996,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29728996_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29728996_2.fastq.gz
+SRR29413852,1,SRR29413852,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29413852_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29413852_2.fastq.gz
+SRR29413851,1,SRR29413851,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29413851_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29413851_2.fastq.gz
+SRR29729002,1,SRR29729002,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29729002_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD-DM/fastq/SRR29729002_2.fastq.gz
 
 
 ################################ PD ################################
@@ -103,10 +103,26 @@ module load singularity
    --pon /home/project/11003581/Ref/pons/1000g_pon.hg38.vcf.gz \
    --pon_tbi /home/project/11003581/Ref/pons/1000g_pon.hg38.vcf.gz.tbi
 
-#  PD batch 1
+#  PD trial
 patient,status,sample,lane,fastq_1,fastq_2
 SRR29413853,1,SRR29413853,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29413853_pass_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29413853_pass_2.fastq.gz
 SRR29413854,1,SRR29413854,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29413854_pass_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29413854_pass_2.fastq.gz
-SRR29728992,1,SRR29728992,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29728992_pass_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29728992_pass_2.fastq.gz
-SRR29728993,1,SRR29728993,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29728993_pass_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29728993_pass_2.fastq.gz
-SRR29728994,1,SRR29728994,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29728994_pass_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29728994_pass_2.fastq.gz
+
+
+
+#PD batch1
+patient,status,sample,lane,fastq_1,fastq_2
+SRR29413858,1,SRR29413858,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29413858_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29413858_2.fastq.gz
+SRR29728988,1,SRR29728988,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29728988_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29728988_2.fastq.gz
+SRR29728989,1,SRR29728989,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29728989_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29728989_2.fastq.gz
+SRR29728990,1,SRR29728990,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29728990_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29728990_2.fastq.gz
+SRR29728991,1,SRR29728991,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29728991_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29728991_2.fastq.gz
+
+
+#PD batch2
+patient,status,sample,lane,fastq_1,fastq_2
+SRR29728992,1,SRR29728992,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29728992_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29728992_2.fastq.gz
+SRR29728993,1,SRR29728993,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29728993_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29728993_2.fastq.gz
+SRR29728994,1,SRR29728994,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29728994_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29728994_2.fastq.gz
+SRR29729003,1,SRR29729003,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29729003_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29729003_2.fastq.gz
+SRR29729004,1,SRR29729004,lane_1,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29729004_1.fastq.gz,/home/users/nus/ash.ps/scratch/T2DM/PD/fastq/SRR29729004_2.fastq.gz
