@@ -147,7 +147,7 @@ done
 
 
 ###############################################
-### pop filtration on multianno files
+### creating maf files
 ###############################################
 
 module load r/4.2.0
