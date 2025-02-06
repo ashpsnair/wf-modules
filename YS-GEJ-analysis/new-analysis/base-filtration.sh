@@ -13,7 +13,7 @@ module load bcftools/1.15.1
 
 # Set input and output directories
 input_dir="/home/users/nus/ash.ps/scratch/YS-analysis/VCFs/"
-output_dir="/home/users/nus/ash.ps/scratch/YS-analysis/base-filtered-vcfs"
+output_dir="/home/users/nus/ash.ps/scratch/YS-analysis/pass-filtered-vcfs"
 
 # Create the output directory if it doesn't exist
 mkdir -p "$output_dir"
