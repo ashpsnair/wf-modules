@@ -32,9 +32,3 @@ export SINGULARITY_CACHEDIR=/home/project/11003581/Tools/singularity-cache/
    -name sarek-mash-b1
 
 
-############## Calling germline variants -sarek ###########
-
-#downloading PBMC
-module load gcc
-module load python/3.12.1-gcc11
-aws s3 sync s3://gedac-novogene/X401SC24126286-Z01-F001/ /home/users/nus/ash.ps/scratch/NCCS-MASH/blood-fastqs --exact-timestamps
