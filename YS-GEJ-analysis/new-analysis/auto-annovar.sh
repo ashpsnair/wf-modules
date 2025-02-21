@@ -1,53 +1,31 @@
 #!/bin/bash
 
-#PBS -l select=1:ncpus=128:mem=128g
-#PBS -l walltime=05:00:00
-#PBS -P 11003581
-#PBS -N auto-process
+#PBS -l select=1:ncpus=64:mem=128g
+#PBS -l walltime=01:00:00
+#PBS -P personal-ash.ps
+#PBS -N auto-annovar-hg38
 #PBS -j oe
 
 # Change to the directory where the job was submitted 
 cd $PBS_O_WORKDIR
-
 module load bcftools/1.15.1
 
-base_dir="/home/users/nus/ash.ps/scratch/YS-tumor-only/normal-analysis/"
-
-# Set input and output directories
-input_dir=${base_dir}/VCFs/
-output_dir=${base_dir}/filtered-vcfs
-
-# Create the output directory if it doesn't exist
-mkdir -p "$output_dir"
-
-# Loop through each .vcf.gz file in the input directory
-for file in "$input_dir"/*.mutect2.filtered.vcf.gz; do
-    # Get the base name of the file (without path)
-    base_name=$(basename "$file" .mutect2.filtered.vcf.gz)
-
-    # Define output file name in the output directory
-    output_file="$output_dir/${base_name}_filtered.vcf"
-
-    # Run bcftools view to filter based on AF column
-    bcftools view -i 'FILTER="PASS"'  "$file" -o "$output_file"
-done
-
-echo "Filtering complete. Filtered files are located in: $output_dir"
+base_dir="/home/users/nus/ash.ps/scratch/YS-GEJ/FINAL/"
 
 ###############################################
 ### annotation
 ###############################################
 
 # Define the input and output directories
-input_dir="${base_dir}/filtered-vcfs"
+input_dir="${base_dir}/common-snvs/"
 output_dir="${base_dir}/annotated/"
 
 # Create output directory if it doesn't exist
 mkdir -p "$output_dir"
 
-for vcf_file in "$input_dir"/*_filtered.vcf; do
+for vcf_file in "$input_dir"/*_common.vcf; do
   # Extract the filename without the '.mutect2.vcf' extension
-  samplename=$(basename "$vcf_file" _filtered.vcf)
+  samplename=$(basename "$vcf_file" _common.vcf)
 
   # Print the sample name
   echo "Processing sample: $samplename"
@@ -145,22 +123,19 @@ find "$INPUT_DIR" -name "*.hg38_multianno.txt" | while read -r txt_file; do
     echo "Processed: $txt_file -> $output_file"
 done
 
-
 ###############################################
 ### create maf files
 ###############################################
 
 module load r/4.2.0
 
-
-
 # Run the R command directly within the bash script using Rscript
 Rscript -e "
 library(maftools)
 
 # Set input and output directories
-input_dir <- '/home/users/nus/ash.ps/scratch/YS-tumor-only/normal-analysis/pop-filter-multianno/'
-output_dir <- '/home/users/nus/ash.ps/scratch/YS-tumor-only/normal-analysis/mafs/'
+input_dir <- '/home/users/nus/ash.ps/scratch/YS-GEJ/FINAL/pop-filter-multianno/'
+output_dir <- '/home/users/nus/ash.ps/scratch/YS-GEJ/FINAL/mafs/'
 
 # Create output directory if it doesn't exist
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
@@ -188,21 +163,17 @@ create_maf <- function(files, output_name) {
 }
 
 # Get list of all .txt files
-all_files <- list.files(path = input_dir, pattern = '\\.hg38_multianno_pop_filt\\.txt$', full.names = TRUE)
+all_files <- list.files(path = input_dir, pattern = '\\\\.hg38_multianno_pop_filt\\\\.txt$', full.names = TRUE)
 
 # Create combined MAF
 create_maf(all_files, 'combined')
-
-# Create combined_w014 MAF (all except T14)
-w014_files <- all_files[!grepl('N14', all_files)]
-create_maf(w014_files, 'combined_w014')
 
 # Create high_maf
 high_maf_files <- all_files[grepl('N11|N04|N10|N07', all_files)]
 create_maf(high_maf_files, 'high_maf')
 
 # Create intermediate_maf
-intermediate_maf_files <- all_files[grepl('N13|N14|N08|N02|N09|N05', all_files)]
+intermediate_maf_files <- all_files[grepl('N13|N08|N02|N09|N05', all_files)]
 create_maf(intermediate_maf_files, 'intermediate_maf')
 
 # Create low_maf
