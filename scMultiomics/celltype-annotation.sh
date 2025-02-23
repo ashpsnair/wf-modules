@@ -105,7 +105,9 @@ write.csv(CellTypes_Azimuth, "CellTypes_Azimuth.csv", row.names = FALSE)
 # Change to the directory where the job was submitted
 cd $PBS_O_WORKDIR
 
+source /home/project/11003581/Tools/miniforge3/bin/activate
 conda activate /home/project/11003581/conda-envs/scMultiomics
+module load r
 
 # Run the R script
 Rscript --vanilla celltype_annotation.R
