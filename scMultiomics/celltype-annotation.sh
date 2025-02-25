@@ -52,7 +52,7 @@ data= Read10X_h5("/home/users/nus/ash.ps/scratch/mulitomics/data/brca/GSE232314_
 data<- CreateSeuratObject(data, project = "brca-trial", assay = "RNA")
 
 #Run Azimuth (takes the feature barcode matrix and Seurat object reference as inputs)
-Prediction<-RunAzimuth(data, "pbmcref")
+Prediction<-RunAzimuth(data, "pbmcMultiome")
 
 #other ref available- pbmcMultiome
 
@@ -71,37 +71,55 @@ rownames(CellTypes_Azimuth)<-CellTypes_Azimuth$Barcode
 Prediction[["CustomLevel"]]<-CellTypes_Azimuth$Barcode[match(rownames(Prediction@meta.data), CellTypes_Azimuth$CustomLevel)]
 Prediction<-AddMetaData(object = Prediction, metadata = CellTypes_Azimuth$CustomLevel, col.name = "CellTypes")
 
-'''
-## add disease metadata
-diseasestate <- read.csv("/path/to/working/directory/diseasestate.csv")
-rownames(diseasestate) <- diseasestate$Barcode #need to import csv with disease state assignments by barcode
-Prediction[["DiseaseState"]] <- diseasestate$Barcode[match(rownames(Prediction@meta.data), diseasestate$disease.state)]
-Prediction <- AddMetaData(object = Prediction, metadata = diseasestate$disease.state, col.name = "DiseaseState")
-'''
+
+##### Creating tSNE file
+seurat_obj <- NormalizeData(data)
+
+# Find variable features
+seurat_obj <- FindVariableFeatures(seurat_obj)
+
+# Scale the data
+seurat_obj <- ScaleData(seurat_obj)
+
+# Run PCA
+seurat_obj <- RunPCA(seurat_obj)
+
+# Run t-SNE
+#wihtout removing duplicates
+seurat_obj <- RunTSNE(seurat_obj, dims = 1:30, check_duplicates = FALSE)
+#by removing duplicates
+#seurat_obj <- rmDuplicateGenes(seurat_obj)
+
+# Extract t-SNE coordinates
+tsne_coords <- Embeddings(seurat_obj, reduction = "tsne")
+
+# Create a data frame with cell barcodes and t-SNE coordinates
+tsne_df <- data.frame(Barcode = rownames(tsne_coords),
+                      tSNE_1 = tsne_coords[,1],
+                      tSNE_2 = tsne_coords[,2])
+
+# Save as CSV
+write.csv(tsne_df, file = "t-SNE-Projection.csv", row.names = FALSE)
+
+
 
 tSNE_coordinates <- read.csv("t-SNE-Projection.csv", stringsAsFactors = F, header = T, row.names = 1)
 tSNE_coordinates_mat <- as(tSNE_coordinates, "matrix")
 Prediction[['tSNE']] <- CreateDimReducObject(embeddings = tSNE_coordinates_mat, key = "tSNE_", global = T, assay = "RNA")
-
-#add back in is the sample ID information so that we do not lose track of which cell barcode came from which sample:
-sampleID <- read.csv("SampleID.csv", stringsAsFactors = F, header = T, row.names = 1)
-sampleID$Barcode<- rownames(sampleID)
-Prediction[["sampleID"]] <- sampleID$Barcode[match(rownames(Prediction@meta.data), sampleID$SampleID)]
-Prediction <- AddMetaData(object = Prediction, metadata = sampleID$SampleID, col.name = "sampleID")
 
 
 #Run create_loupe_from_seurat command, which takes the Seurat object as input:
 create_loupe_from_seurat(Prediction)
 
 #write file
-write.csv(CellTypes_Azimuth, "CellTypes_Azimuth.csv", row.names = FALSE)
+write.table(CellTypes_Azimuth, "CellTypes_Azimuth.tsv", sep = "\t", row.names = FALSE, quote = FALSE)
 
 ########### Running the above R code as PBS job ##############
 
 #!/bin/bash
 
 #PBS -l select=2:ncpus=64:mem=128g
-#PBS -l walltime=12:00:00
+#PBS -l walltime=4:00:00
 #PBS -P 11003581
 #PBS -j oe
 #PBS -N celltype_annotation
@@ -122,4 +140,4 @@ module load gsl/2.7.1-gcc11
 module load r/4.2.0 
 
 # Run the R script
-Rscript celltype_annotation.R
+Rscript celltype_annotation.R > log.txt 2>&1

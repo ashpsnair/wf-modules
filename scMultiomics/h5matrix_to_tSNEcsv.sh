@@ -21,7 +21,10 @@ seurat_obj <- ScaleData(seurat_obj)
 seurat_obj <- RunPCA(seurat_obj)
 
 # Run t-SNE
-seurat_obj <- RunTSNE(seurat_obj, dims = 1:30)
+#wihtout removing duplicates
+seurat_obj <- RunTSNE(seurat_obj, dims = 1:30, check_duplicates = FALSE)
+#by removing duplicates
+seurat_obj <- rmDuplicateGenes(seurat_obj)
 
 # Extract t-SNE coordinates
 tsne_coords <- Embeddings(seurat_obj, reduction = "tsne")
@@ -33,3 +36,4 @@ tsne_df <- data.frame(Barcode = rownames(tsne_coords),
 
 # Save as CSV
 write.csv(tsne_df, file = "t-SNE-Projection.csv", row.names = FALSE)
+
