@@ -73,17 +73,51 @@ mkdir -p $output_dir1
 
 python $SCOMATIC/scripts/SplitBam/SplitBamCellTypes.py \
         --bam /home/users/nus/ash.ps/scratch/mulitomics/analysis/10k_pbmc/outs/gex_possorted_bam.bam \
-        --meta /home/users/nus/ash.ps/scratch/mulitomics/celltype-annotation/CellTypes_Azimuth.tsv \
+        --meta /home/users/nus/ash.ps/scratch/mulitomics/gex-class/gex-classification.tsv \
         --id ${sample} \
         --n_trim 5 \
         --max_nM 5 \
         --max_NH 1 \
         --outdir $output_dir1
 
+#### Pre step 2 - filtering out chr contigs
+
+
+module load samtools/1.15.1
+
+filtered_out=$output_dir1/filtered
+mkdir -p "$filtered_out"
+
+# List of chromosomes to keep
+chromosomes="chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22 chrX chrY"
+
+# Process each BAM file in the input directory
+for input_bam in "$input_dir"/*.bam; do
+    # Get the base name of the input file
+    base_name=$(basename "$input_bam")
+    
+    # Define the output BAM file path
+    output_bam="${output_dir}/${base_name%.bam}_filtered.bam"
+    
+    # Filter BAM file
+    samtools view -h "$input_bam" $chromosomes | samtools sort -o "$output_bam"
+    
+    # Index the filtered BAM file
+    samtools index "$output_bam"
+    
+    echo "Processed and indexed: $base_name"
+done
+
+echo "All BAM files have been filtered and indexed."
+
+
+
+
 #Step 2: Collecting base count information
 
 REF=/home/project/11003581/Ref/Homo_sapiens/GATK/hg38/Homo_sapiens_assembly38.fasta
 
+output_dir1=$output_dir/Step1_BamCellTypes/filtered/
 output_dir2=$output_dir/Step2_BaseCellCounts
 mkdir -p $output_dir2
 
@@ -103,7 +137,7 @@ for bam in $(ls -d $output_dir1/*bam);do
     --out_folder $output_dir2 \
     --min_bq 30 \
     --tmp_dir $temp \
-    --nprocs 1
+    --nprocs 16
 
   rm -rf $temp
 done

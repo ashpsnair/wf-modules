@@ -73,6 +73,9 @@ Prediction<-AddMetaData(object = Prediction, metadata = CellTypes_Azimuth$Custom
 
 
 ##### Creating tSNE file
+library(Seurat)
+library(Rtsne)
+
 seurat_obj <- NormalizeData(data)
 
 # Find variable features
