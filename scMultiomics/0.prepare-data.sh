@@ -1,7 +1,10 @@
+########################## 7.5k Sorted Cells from Human Invasive Ductal Carcinoma, 3’ v3.1
+#Source
+https://www.10xgenomics.com/datasets/7-5-k-sorted-cells-from-human-invasive-ductal-carcinoma-3-v-3-1-3-1-standard-6-0-0
 
-#source: https://www.10xgenomics.com/datasets/10-k-human-pbm-cs-multiome-v-1-0-chromium-x-1-standard-2-0-0
+#### download
+curl -O https://cf.10xgenomics.com/samples/cell-exp/6.0.0/Breast_Cancer_3p/Breast_Cancer_3p_filtered_feature_bc_matrix.h5
+curl -O https://cf.10xgenomics.com/samples/cell-exp/6.0.0/Breast_Cancer_3p/Breast_Cancer_3p_possorted_genome_bam.bam
+curl -O https://cf.10xgenomics.com/samples/cell-exp/6.0.0/Breast_Cancer_3p/Breast_Cancer_3p_possorted_genome_bam.bam.bai
 
-# Input Files
-wget https://s3-us-west-2.amazonaws.com/10x.files/samples/cell-arc/2.0.0/10k_PBMC_Multiome_nextgem_Chromium_X/10k_PBMC_Multiome_nextgem_Chromium_X_fastqs.tar
-wget https://cf.10xgenomics.com/samples/cell-arc/2.0.0/10k_PBMC_Multiome_nextgem_Chromium_X/10k_PBMC_Multiome_nextgem_Chromium_X_library.csv
 
