@@ -16,18 +16,20 @@ export NXF_SINGULARITY_CACHEDIR=/home/project/11003581/Tools/singularity-cache/
 export SINGULARITY_CACHEDIR=/home/project/11003581/Tools/singularity-cache/
 
 
-/home/project/11003581/Tools/nextflow run iraiosub/riboseq-flow
+ 
 
-nextflow run iraiosub/riboseq-flow -r v1.1.1 \
+/home/project/11003581/Tools/nextflow run iraiosub/riboseq-flow -r v1.1.1 \
     -profile singularity \
     --skip_umi_extract \
+    --contaminants_fasta \
     --input /home/users/nus/ash.ps/scratch/JQQ/analysis/riboseq-ira/samplesheet.csv \
     --outdir /home/users/nus/ash.ps/scratch/JQQ/analysis/riboseq/ \
     --adapter_threeprime AGATCGGAAGAGCACACGTCTGAACTCCATCAC \
     --org GRCh38 \
     --strandedness forward \
-    --feature CDS
+    --feature exon
 
+    
 
 
 ### Samplesheet

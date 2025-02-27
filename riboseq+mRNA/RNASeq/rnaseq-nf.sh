@@ -9,7 +9,6 @@ RNA_Rem5,/home/users/nus/ash.ps/scratch/JQQ/JQQ-rRNA+blkRNA/RNA_Rem5/RNA_Rem5_FK
 RNA_Rem5,/home/users/nus/ash.ps/scratch/JQQ/JQQ-rRNA+blkRNA/RNA_Rem5/RNA_Rem5_FKDL250009341-1A_HLVNHDRX5_L1.fq.gz,auto
 RNA_Rem5,/home/users/nus/ash.ps/scratch/JQQ/JQQ-rRNA+blkRNA/RNA_Rem5/RNA_Rem5_FKDL250009341-1A_HNNCCDRX5_L2.fq.gz,auto
 
-
 #!/bin/bash
 
 #PBS -l select=3:ncpus=64:mem=256g
@@ -33,8 +32,8 @@ export SINGULARITY_CACHEDIR=/home/project/11003581/Tools/singularity-cache/
     --outdir /home/users/nus/ash.ps/scratch/JQQ/analysis/rnaseq/ \
     --genome GRCh38 \
     --trimmer fastp \
-    --aligner star_salmon \
-    --pseudo_aligner salmon
+    --remove_ribo_rna \
+    --aligner star_salmon
 
 
 
