@@ -77,3 +77,13 @@ echo "Step 4 complete"
 
 
 
+
+output_dir8=$output_dir/TrinucleotideContext
+output_dir4=$output_dir/Step4_VariantCalling # Already defined in previous steps
+mkdir -p $output_dir8
+
+echo ${output_dir4}/AMPK_positive/breast-cancer.calling.step2.tsv > ${output_dir8}/AMPK_positive.txt
+
+python $SCOMATIC/scripts/TrinucleotideBackground/TrinucleotideContextBackground.py \
+        --in_tsv ${output_dir8}/AMPK_positive.txt \
+        --out_file ${output_dir8}/AMPK_positive-TNM.txt
