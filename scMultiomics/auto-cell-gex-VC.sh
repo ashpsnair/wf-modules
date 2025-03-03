@@ -20,6 +20,7 @@ module load hdf5/1.12.1-parallel-icc23-cmpi
 module load gsl/2.7.1-gcc11
 module load r/4.2.0 
 module load samtools/1.15.1
+module load bedtools/2.30.0
 module load python/3.12.1-gcc11
 
 # Set base directory and output directory
@@ -130,7 +131,9 @@ Rscript "$output_dir/cell_type_annotation.R" > log.txt 2>&1
 
 echo "Cell type annotation completed successfully"
 
-# Step 1: Splitting alignment file into cell-type-specific bams
+##################################################
+### Step 1: Splitting alignment file into cell-type-specific bams
+##################################################
 
 output_dir1=$output_dir/Step1_BamCellTypes
 mkdir -p $output_dir1
@@ -148,7 +151,7 @@ echo "BAM splitting completed successfully"
 
 # Filtering and indexing BAM files
 filtered_out=$output_dir1/filtered
-mkdir -p "$filtered_out"
+mkdir -p "$filtered_out" 
 
 # List of chromosomes to keep
 chromosomes="chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22 chrX chrY"
@@ -165,3 +168,60 @@ for input_bam in "$output_dir1"/*.bam; do
 done
 
 echo "All BAM files have been filtered and indexed."
+
+
+##################################################
+########## Step 2 Collecting base count information
+##################################################
+
+REF=/home/project/11003581/Ref/Homo_sapiens/GATK/hg38/Homo_sapiens_assembly38.fasta
+
+output_dir1=$output_dir/Step1_BamCellTypes/filtered/
+output_dir2=$output_dir/Step2_BaseCellCounts
+mkdir -p $output_dir2
+
+for bam in $(ls -d $output_dir1/*bam);do
+  
+  # Cell type
+  cell_type=$(basename $bam | awk -F'.' '{print $(NF-1)}')
+
+  # Temp folder
+  temp=$output_dir2/temp_${cell_type}
+  mkdir -p $temp
+
+  # Command line to submit to cluster
+  python $SCOMATIC/scripts/BaseCellCounter/BaseCellCounter.py --bam $bam \
+    --ref $REF \
+    --chrom all \
+    --out_folder $output_dir2 \
+    --min_bq 30 \
+    --tmp_dir $temp \
+    --nprocs 16
+
+  rm -rf $temp
+done
+
+### Step 5 intersect
+
+#!/bin/bash
+
+#PBS -l select=2:ncpus=64:mem=128g
+#PBS -l walltime=6:00:00
+#PBS -P 11003581
+#PBS -j oe
+#PBS -N run-scomatic-intersect
+
+
+# Change to the directory where the job was submitted
+cd $PBS_O_WORKDIR
+
+source /home/project/11003581/Tools/miniforge3/bin/activate
+conda activate /home/project/11003581/conda-envs/SComatic
+
+output_dir="/home/users/nus/ash.ps/scratch/mulitomics/analysis/breast-cancer"
+SCOMATIC=/home/project/11003581/Tools/SComatic/
+
+output_dir4=$output_dir/Step4_VariantCalling
+
+module load bedtools/2.30.0
+bedtools intersect -header -a ${output_dir4}/ampk-neg.step2.tsv -b $SCOMATIC/bed_files_of_interest/UCSC.k100_umap.without.repeatmasker.bed | awk '$1 ~ /^#/ || $6 == "PASS"' > ${output_dir4}/ampk-neg.step2.pass.tsv
