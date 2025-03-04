@@ -23,108 +23,133 @@ module load samtools/1.15.1
 module load bedtools/2.30.0
 module load python/3.12.1-gcc11
 
-# Set variables
+
+# Set base directory and output directory
 project="breast-cancer"
 base_dir="/home/users/nus/ash.ps/scratch/mulitomics/data/breast-cancer"
-output_dir="/home/users/nus/ash.ps/scratch/mulitomics/analysis/breast-cancer"
+output_dir="/home/users/nus/ash.ps/scratch/mulitomics/analysis/new"
 SCOMATIC=/home/project/11003581/Tools/SComatic/
-REF=/home/project/11003581/Ref/Homo_sapiens/GATK/hg38/Homo_sapiens_assembly38.fasta
 
-output_dir1=$output_dir/Step1_BamCellTypes/filtered
-output_dir2=$output_dir/Step2_BaseCellCounts
+# Find and store file paths
+h5_file=$(find "$base_dir" -name "*.h5" -type f)
+bam_file=$(find "$base_dir" -name "*.bam" -type f)
+bai_file=$(find "$base_dir" -name "*.bam.bai" -type f)
 
-# Create directories
-mkdir -p "$output_dir2/AMPK_negative"
-mkdir -p "$output_dir2/AMPK_positive"
+# Create R script
+cat << EOF > "$output_dir/cell_type_annotation.R"
+library(Seurat)
+library(Azimuth)
+library(SeuratData)
 
-# Cell types
-cell_types=("AMPK_negative" "AMPK_positive")
+setwd("$output_dir")
 
-# Loop through cell types
-for cell_type in "${cell_types[@]}"; do
-    bam="$output_dir1/${project}.${cell_type}_filtered.bam"  # Adjusted BAM path
-    echo "Processing $bam"
+options(timeout = 1000)
 
-    # Temp folder
-    temp="$output_dir2/${cell_type}/temp"
-    mkdir -p "$temp"
+# Load dataset
+data <- Read10X_h5("$h5_file", use.names = TRUE, unique.features = TRUE)
 
-    # Run BaseCellCounter
-    python "$SCOMATIC/scripts/BaseCellCounter/BaseCellCounter.py" \
-        --bam "$bam" \
-        --ref "$REF" \
-        --chrom all \
-        --out_folder "$output_dir2/${cell_type}" \
-        --min_bq 30 \
-        --tmp_dir "$temp" \
-        --nprocs 16  # Important: Adjust based on your resources
+# Initialize Seurat object
+seurat_obj <- CreateSeuratObject(data, project = "$project", assay = "RNA")
 
-    rm -rf "$temp"
-done
+# Normalize the data
+seurat_obj <- NormalizeData(seurat_obj, assay = "RNA")
 
-echo "Step 2 complete"
+# Define gene sets
+ampk_up_targets <- c("PPARGC1A", "TRARG1", "SLC2A4")
+ampk_down_targets <- c("ACC", "SREBF1")
+ampk_genes <- c("PRKAA1", "PRKAA2")
 
-################################################################
-############# Step 3: Merging base count matrices ###############
-################################################################
+# Calculate mean expression for each gene
+gene_means <- rowMeans(seurat_obj@assays$RNA@data[c(ampk_up_targets, ampk_down_targets, ampk_genes), ])
 
-output_dir3=$output_dir/Step3_BaseCellCountsMerged
+# Function to check gene regulation
+check_regulation <- function(gene_expr, gene_mean) {
+  return(ifelse(gene_expr > gene_mean, "up", ifelse(gene_expr < gene_mean, "down", "no_change")))
+}
 
-# Create output directory
-mkdir -p "$output_dir3"
+# Apply regulation check
+seurat_obj <- AddMetaData(seurat_obj, 
+                          apply(seurat_obj@assays$RNA@data[c(ampk_up_targets, ampk_down_targets, ampk_genes), ], 2, 
+                                function(x) sapply(seq_along(x), function(i) check_regulation(x[i], gene_means[i]))),
+                          col.name = c(ampk_up_targets, ampk_down_targets, ampk_genes))
 
-# Loop through cell types
-for cell_type in "${cell_types[@]}"; do
-    echo "Merging counts for $cell_type"
-    python "$SCOMATIC/scripts/MergeCounts/MergeBaseCellCounts.py" \
-        --tsv_folder "$output_dir2/${cell_type}" \
-        --outfile "$output_dir3/${project}.BaseCellCounts.${cell_type}.tsv"
-done
+# Determine AMPK status
+determine_ampk_status <- function(cell_data) {
+  if (all(cell_data[ampk_up_targets] == "up") && all(cell_data[ampk_down_targets] == "down")) {
+    return("ampk_activated")
+  } else if (all(cell_data[c(ampk_up_targets, ampk_down_targets)] == "no_change")) {
+    return("ampk_inactive")
+  } else if (all(cell_data[ampk_genes] == "up")) {
+    return("ampk_overexpressed")
+  } else if (all(cell_data[ampk_genes] == "down")) {
+    return("ampk_underexpressed")
+  } else {
+    return("other")
+  }
+}
 
-echo "Step 3 complete"
+# Apply AMPK status determination
+seurat_obj$ampk_status <- apply(seurat_obj@meta.data[, c(ampk_up_targets, ampk_down_targets, ampk_genes)], 1, determine_ampk_status)
 
+# Calculate mean expression for BRCA2
+brca2_mean <- mean(seurat_obj@assays$RNA@data["BRCA2",])
 
-################################################################
-############# Step 4: Detection of somatic mutations ###############
-################################################################
+# Determine BRCA2 status
+determine_brca2_status <- function(brca2_expr) {
+  if (brca2_expr == 0) {
+    return("brca2_null")
+  } else if (abs(brca2_expr - brca2_mean) / brca2_mean < 0.1) {
+    return("brca2_het")
+  } else {
+    return("brca2_other")
+  }
+}
 
-output_dir4=$output_dir/Step4_VariantCalling
+# Apply BRCA2 status determination
+seurat_obj$brca2_status <- sapply(seurat_obj@assays$RNA@data["BRCA2",], determine_brca2_status)
 
-# Create output directories
-mkdir -p "$output_dir4/AMPK_negative"
-mkdir -p "$output_dir4/AMPK_positive"
+# Combine AMPK and BRCA2 status
+seurat_obj$combined_status <- paste(seurat_obj$ampk_status, seurat_obj$brca2_status, sep = "-")
 
-editing=$SCOMATIC/RNAediting/AllEditingSites.hg38.txt
-PON=$SCOMATIC/PoNs/PoN.scRNAseq.hg38.tsv
+# Create combined classification dataframe
+combined_classification <- data.frame(
+  Barcode = rownames(seurat_obj@meta.data),
+  Combined_status = seurat_obj$combined_status
+)
 
-# Loop through cell types
-for cell_type in "${cell_types[@]}"; do
-    echo "Calling variants for $cell_type"
+# Write combined classification
+write.table(combined_classification, "combined_classification.tsv", sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
 
-    infile="$output_dir3/${project}.BaseCellCounts.${cell_type}.tsv"
-    outfile_prefix="$output_dir4/${cell_type}/${project}"
+# Merge with Azimuth results
+merged_data <- merge(CellTypes_Azimuth, combined_classification, by = "Barcode", all = TRUE)
 
-    # Step 4.1
-    python "$SCOMATIC/scripts/BaseCellCalling/BaseCellCalling.step1.py" \
-        --infile "$infile" \
-        --outfile "$outfile_prefix" \
-        --ref "$REF"
+# Combine Cell_type values
+merged_data$Cell_type <- paste(merged_data$CustomLevel, merged_data$Combined_status, sep = "-")
 
-    # Step 4.2
-    python "$SCOMATIC/scripts/BaseCellCalling/BaseCellCalling.step2.py" \
-        --infile "${outfile_prefix}.calling.step1.tsv" \
-        --outfile "$outfile_prefix" \
-        --editing "$editing" \
-        --pon "$PON"
+# Select required columns
+result <- merged_data[, c("Barcode", "Cell_type")]
 
-    # (Optional) Intersect with high-quality regions
-    bedtools intersect -header -a "${outfile_prefix}.calling.step2.tsv" -b "$SCOMATIC/bed_files_of_interest/UCSC.k100_umap.without.repeatmasker.bed" | awk '$1 ~ /^#/ || $6 == "PASS"' > "${outfile_prefix}.calling.step2.pass.tsv"
-done
+# Write final result
+write.table(result, "merged_classification.tsv", sep = "\t", row.names = FALSE, quote = FALSE)
 
-echo "Step 4 complete"
+# Generate stats
+stats <- data.frame(
+  Dataset = c(rep("CellTypes_Azimuth", length(table(CellTypes_Azimuth$CustomLevel))),
+              rep("combined_classification", length(table(combined_classification$Combined_status))),
+              rep("result", length(table(result$Cell_type)))),
+  Cell_type = c(names(table(CellTypes_Azimuth$CustomLevel)),
+                names(table(combined_classification$Combined_status)),
+                names(table(result$Cell_type))),
+  Count = c(as.vector(table(CellTypes_Azimuth$CustomLevel)),
+            as.vector(table(combined_classification$Combined_status)),
+            as.vector(table(result$Cell_type)))
+)
 
+# Write stats
+write.table(stats, "stats.txt", sep = "\t", row.names = FALSE, quote = FALSE)
 
+EOF
 
+Rscript "$output_dir/cell_type_annotation.R" > log.txt 2>&1
 
-
-
+echo "Cell type annotation completed successfully"
