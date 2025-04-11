@@ -38,8 +38,8 @@ annotate_variation.pl -buildver hg19 -downdb -webfrom annovar dbnsfp47a humandb/
 
 #!/bin/bash
 
-#PBS -l select=1:ncpus=16
-#PBS -l walltime=00:30:00
+#PBS -l select=1:ncpus=128
+#PBS -l walltime=02:30:00
 #PBS -P 11003581
 #PBS -N auto-annovar-hg38
 #PBS -j oe
@@ -48,15 +48,15 @@ annotate_variation.pl -buildver hg19 -downdb -webfrom annovar dbnsfp47a humandb/
 cd $PBS_O_WORKDIR
 
 # Define the input and output directories
-input_dir="/home/users/nus/ash.ps/scratch/MASH-analysis/vcf-inputs/"
-output_dir="/home/users/nus/ash.ps/scratch/MASH-analysis/annovar"
+input_dir="/home/users/nus/ash.ps/scratch/NCCS-MASH/FINAL/intersect/germline-merged/"
+output_dir="/home/users/nus/ash.ps/scratch/NCCS-MASH/FINAL/germline-annot/"
 
 # Create output directory if it doesn't exist
 mkdir -p "$output_dir"
 
-for vcf_file in "$input_dir"/*mutect2.vcf; do
+for vcf_file in "$input_dir"/*.germline_merged.vcf; do
   # Extract the filename without the '.mutect2.vcf' extension
-  samplename=$(basename "$vcf_file" mutect2.vcf)
+  samplename=$(basename "$vcf_file" .germline_merged.vcf)
 
   # Print the sample name
   echo "Processing sample: $samplename"
@@ -96,8 +96,8 @@ Rscript -e "
 library(maftools)
 
 # Define the input and output directories
-input_dir='/home/users/nus/ash.ps/scratch/MASH-analysis/annovar/'
-output_dir='/home/users/nus/ash.ps/scratch/MASH-analysis/'
+input_dir='/home/users/nus/ash.ps/scratch/NCCS-MASH/FINAL/germline-annot/'
+output_dir='/home/users/nus/ash.ps/scratch/NCCS-MASH/FINAL/germline-annot/mafs/'
 
 # Get the list of .hg38_multianno.txt files in the specified location (including subfolders)
 annovar_outputs <- list.files(path = input_dir, pattern = '\\\\.hg38_multianno\\\\.txt$', recursive = TRUE, full.names = TRUE)

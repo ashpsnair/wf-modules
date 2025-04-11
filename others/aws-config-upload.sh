@@ -45,5 +45,7 @@ done
 
 echo "CSV file 's3_fastq_data.csv' has been created with the requested information."
 
+######### copying from online server to local machine
 
+rsync -a ash.ps@aspire2a.nus.edu.sg:/home/users/nus/ash.ps/scratch/NCCS-MASH/FINAL/intersect/true-normal .
 
