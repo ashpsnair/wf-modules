@@ -49,3 +49,5 @@ echo "CSV file 's3_fastq_data.csv' has been created with the requested informati
 
 rsync -a ash.ps@aspire2a.nus.edu.sg:/home/users/nus/ash.ps/scratch/NCCS-MASH/FINAL/intersect/true-normal .
 
+aws s3 sync s3://mirxes-scome/scWGS_20241218_191/ /home/users/nus/ash.ps/scratch/scDNA/ --exact-timestamps
+ 
