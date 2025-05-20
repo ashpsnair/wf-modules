@@ -29,7 +29,73 @@ export SINGULARITY_CACHEDIR=/home/project/11003581/Tools/singularity-cache/
    --igenomes_base /home/project/11003581/Ref/Homo_sapiens/GATK/hg38/
 
 
+########## re running #########
 
 
-   --germline_resource /home/project/11003581/Ref/Homo_sapiens/GATK/hg38/af-only-gnomad.hg38.vcf.gz \
-   --germline_resource_tbi /home/project/11003581/Ref/Homo_sapiens/GATK/hg38/af-only-gnomad.hg38.vcf.gz.tbi \
+#!/bin/bash
+
+#PBS -l select=3:ncpus=64:mem=256g
+#PBS -l walltime=24:00:00
+#PBS -P 11003581
+#PBS -N sarek-mash-TO
+#PBS -j oe
+
+# Change to the directory where the job was submitted 
+cd $PBS_O_WORKDIR
+
+module load java/17.0.6-jdk
+module load singularity
+module load nextflow/24.10.5
+
+export NXF_SINGULARITY_CACHEDIR=/home/project/11003581/Tools/singularity-cache/
+export SINGULARITY_CACHEDIR=/home/project/11003581/Tools/singularity-cache/
+export SINGULARITY_BIND="/home/users/nus/ash.ps,/home/project/11003581"
+
+nextflow run nf-core/sarek -r 3.5.1 \
+   -profile singularity \
+   --input /home/users/nus/ash.ps/scratch/NCCS-MASH/analysis/tumor/analysis/samplesheet.csv \
+   --outdir /home/users/nus/ash.ps/scratch/NCCS-MASH/analysis/tumor/analysis \
+   --genome GATK.GRCh38 \
+   --tools mutect2 \
+   --joint_mutect2 \
+   --max_cpus 128 \
+   --max_memory '256.GB' \
+   --pon /home/project/11003581/Ref/pons/1000g_pon.hg38.vcf.gz \
+   --pon_tbi /home/project/11003581/Ref/pons/1000g_pon.hg38.vcf.gz.tbi \
+   --email ash.ps@nus.edu.sg \
+   -name sarek-mash-tumor-only
+
+
+
+
+#!/bin/bash
+
+#PBS -l select=3:ncpus=64:mem=256g
+#PBS -l walltime=24:00:00
+#PBS -P 11003581
+#PBS -N sarek-mash-TO
+#PBS -j oe
+
+# Change to the directory where the job was submitted 
+cd $PBS_O_WORKDIR
+
+module load java/17.0.6-jdk
+module load singularity
+
+export NXF_SINGULARITY_CACHEDIR=/home/project/11003581/Tools/singularity-cache/
+export SINGULARITY_CACHEDIR=/home/project/11003581/Tools/singularity-cache/
+export SINGULARITY_BIND="/home/users/nus/ash.ps,/home/project/11003581"
+
+/home/project/11003581/Tools/nextflow run nf-core/sarek -r 3.5.1 \
+   -profile singularity \
+   --input /home/users/nus/ash.ps/scratch/NCCS-MASH/analysis/tumor/new-analysis/samplesheet.csv \
+   --outdir /home/users/nus/ash.ps/scratch/NCCS-MASH/analysis/tumor/new-analysis \
+   --genome GATK.GRCh38 \
+   --tools mutect2 \
+   --joint_mutect2 \
+   --max_cpus 128 \
+   --max_memory '256.GB' \
+   --pon /home/project/11003581/Ref/pons/1000g_pon.hg38.vcf.gz \
+   --pon_tbi /home/project/11003581/Ref/pons/1000g_pon.hg38.vcf.gz.tbi \
+   --email ash.ps@nus.edu.sg \
+   -name sarek-mash-tumor-only
