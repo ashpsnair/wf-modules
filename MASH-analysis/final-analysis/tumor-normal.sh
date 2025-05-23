@@ -84,7 +84,6 @@ module load singularity
 
 export NXF_SINGULARITY_CACHEDIR=/home/project/11003581/Tools/singularity-cache/
 export SINGULARITY_CACHEDIR=/home/project/11003581/Tools/singularity-cache/
-export SINGULARITY_BIND="/home/users/nus/ash.ps,/home/project/11003581"
 
 /home/project/11003581/Tools/nextflow run nf-core/sarek -r 3.5.1 \
    -profile singularity \
