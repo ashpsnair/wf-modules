@@ -9,7 +9,6 @@
 
 cd $PBS_O_WORKDIR
 
-#!/bin/bash
 
 INPUT_DIR="/home/users/nus/ash.ps/scratch/scDNA/analysis/filtered-vcfs/2204"
 OUTPUT_DIR="/home/users/nus/ash.ps/scratch/scDNA/analysis/annotation/pop-filter-vcfs/2204"
