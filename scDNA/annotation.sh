@@ -39,45 +39,6 @@ for cat in 2204 3401; do
   done
 done
 
-###############################################
-### pop filtration vcf files
-###############################################
-
-for cat in 2204 3401; do
-  INPUT_DIR="${annot_dir}/annotated/$cat"
-  OUTPUT_DIR="${annot_dir}/pop-filter-vcfs/$cat"
-  mkdir -p "$OUTPUT_DIR"
-
-  find "$INPUT_DIR" -name "*.hg38_multianno.vcf" | while read -r vcf_file; do
-    output_file="$OUTPUT_DIR/$(basename "${vcf_file%.vcf}_pop_filt.vcf")"
-    bcftools view "$vcf_file" | awk '
-      BEGIN {FS="\t"; OFS="\t"}
-      /^#/ {print; next}
-      {
-        split($8, info, ";");
-        exac_all="."; exac_eas="."; exac_sas="."; gnomad_genome_all="."; gnomad_genome_eas="."; all_sites_2015_08="."; esp6500siv2_all=".";
-        for (i in info) {
-          split(info[i], pair, "=");
-          if (pair[1] == "ExAC_ALL") exac_all = pair[2];
-          if (pair[1] == "ExAC_EAS") exac_eas = pair[2];
-          if (pair[1] == "ExAC_SAS") exac_sas = pair[2];
-          if (pair[1] == "gnomAD_genome_ALL") gnomad_genome_all = pair[2];
-          if (pair[1] == "gnomAD_genome_EAS") gnomad_genome_eas = pair[2];
-          if (pair[1] == "ALL.sites.2015_08") all_sites_2015_08 = pair[2];
-          if (pair[1] == "esp6500siv2_all") esp6500siv2_all = pair[2];
-        }
-        if ((exac_all == "." || exac_all <= 0.01) &&
-            (exac_eas == "." || exac_eas <= 0.01) &&
-            (exac_sas == "." || exac_sas <= 0.01) &&
-            (gnomad_genome_all == "." || gnomad_genome_all <= 0.01) &&
-            (gnomad_genome_eas == "." || gnomad_genome_eas <= 0.01) &&
-            (all_sites_2015_08 == "." || all_sites_2015_08 <= 0.01) &&
-            (esp6500siv2_all == "." || esp6500siv2_all <= 0.01))
-          print
-      }' > "$output_file"
-    echo "Processed: $vcf_file → $output_file"
-  done
-done
 
 ###############################################
 ### pop filtration on multianno files
@@ -106,38 +67,5 @@ for cat in 2204 3401; do
     echo "Processed: $txt_file → $output_file"
   done
 done
-
-###############################################
-### create maf files
-###############################################
-
-module load r/4.2.0
-
-Rscript -e "
-library(maftools)
-
-base <- '/home/users/nus/ash.ps/scratch/scDNA/analysis/annotation'
-input_dir <- file.path(base, 'pop-filter-multianno')
-output_dir <- file.path(base, 'mafs')
-dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
-
-create_maf <- function(files, output_name) {
-  if (length(files) > 0) {
-    maf <- annovarToMaf(
-      files,
-      refBuild = 'hg38',
-      sep = '\t'
-    )
-    write.table(maf, file = file.path(output_dir, paste0(output_name, '.maf')), sep = '\t', quote = FALSE, row.names = FALSE)
-    cat('Created', output_name, 'MAF with', length(files), 'files\\n')
-  }
-}
-
-# all 2204 and 3401 files
-all_files <- list.files(path = input_dir, pattern = '\\\\_pop_filt\\\\.txt$', recursive = TRUE, full.names = TRUE)
-create_maf(all_files, 'combined_maf')
-
-cat('MAF generation complete.\\n')
-"
 
 
