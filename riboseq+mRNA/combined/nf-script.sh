@@ -44,4 +44,3 @@ export SINGULARITY_CACHEDIR=/home/project/11003581/Tools/singularity-cache/
    --fasta /home/project/11003581/Ref/Homo_sapiens/UCSC/hg38/Sequence/WholeGenomeFasta/genome.fa \
    --remove_ribo_rna \
    --email ash.ps@nus.edu.sg
-
