@@ -105,7 +105,7 @@ for bam in "$filtered_out"/*.bam; do
         --ref "$REF" \
         --chrom all \
         --out_folder "$output_dir2" \
-        --min_bq 30 \
+        --min_bq 5 \
         --tmp_dir "$temp" \
         --nprocs 128
 
@@ -127,3 +127,6 @@ for bam in "$filtered_out"/*.bam; do
 done
 
 echo "[DONE] SComatic full pipeline completed at $(date)"
+
+
+######## DEBUGGING Variant calling step 2 ##########

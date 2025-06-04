@@ -43,4 +43,5 @@ export SINGULARITY_CACHEDIR=/home/project/11003581/Tools/singularity-cache/
    --gtf /home/project/11003581/Ref/Homo_sapiens/UCSC/hg38/Annotation/Genes/genes.gtf \
    --fasta /home/project/11003581/Ref/Homo_sapiens/UCSC/hg38/Sequence/WholeGenomeFasta/genome.fa \
    --remove_ribo_rna \
+   --feature CDS \
    --email ash.ps@nus.edu.sg
