@@ -4,7 +4,7 @@
 #PBS -l walltime=10:00:00
 #PBS -P 11003581
 #PBS -j oe
-#PBS -N run-scomatic-full
+#PBS -N run-scomatic
 
 # ------------------------------------------------------------------------------
 # SAFETY & LOGGING
@@ -40,8 +40,8 @@ module load python/3.12.1-gcc11
 project="bc"
 SCOMATIC="/home/project/11003581/Tools/SComatic"
 
-base_dir="/home/users/nus/ash.ps/scratch/mulitomics/data/breast-cancer"
-output_dir="/home/users/nus/ash.ps/scratch/mulitomics/analysis"
+base_dir="/home/users/nus/ash.ps/scratch/mulitomics/10x_data/data/breast-cancer"
+output_dir="/home/users/nus/ash.ps/scratch/mulitomics/10x_data/analysis/"
 output_dir1="$output_dir/Step1_BamCellTypes"
 filtered_out="$output_dir1/filtered"
 output_dir2="$output_dir/Step2_BaseCellCounts"
@@ -61,7 +61,7 @@ bam_file=$(find "$base_dir" -name "*.bam" -type f)
 echo "[STEP 1] Splitting BAM by cell type at $(date)"
 python "$SCOMATIC/scripts/SplitBam/SplitBamCellTypes.py" \
     --bam "$bam_file" \
-    --meta /home/users/nus/ash.ps/scratch/mulitomics/data/cell_type.tsv \
+    --meta /home/users/nus/ash.ps/scratch/mulitomics/10x_data/data/cell_type.tsv \
     --id "$project" \
     --n_trim 5 \
     --max_nM 5 \
@@ -105,7 +105,11 @@ for bam in "$filtered_out"/*.bam; do
         --ref "$REF" \
         --chrom all \
         --out_folder "$output_dir2" \
-        --min_bq 5 \
+        --min_bq 20 \
+        --min_ac 1 \
+        --min_af 0.01 \
+        --min_dp 2 \
+        --min_cc 1 \
         --tmp_dir "$temp" \
         --nprocs 128
 
@@ -120,7 +124,8 @@ for bam in "$filtered_out"/*.bam; do
         --infile "${output_dir4}/${cell_name}.calling.step1.tsv" \
         --outfile "${output_dir4}/${cell_name}" \
         --editing "$editing" \
-        --pon "$PON"
+        --pon "$PON" \
+        --verbose
 
     echo "[INFO] Cleanup: $temp"
     rm -rf "$temp"
@@ -128,5 +133,3 @@ done
 
 echo "[DONE] SComatic full pipeline completed at $(date)"
 
-
-######## DEBUGGING Variant calling step 2 ##########
