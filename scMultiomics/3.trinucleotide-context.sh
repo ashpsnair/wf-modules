@@ -12,7 +12,7 @@
 set -euo pipefail
 cd "$PBS_O_WORKDIR"
 
-LOGFILE="$PBS_O_WORKDIR/scomatic-run-trinucleo.log"
+LOGFILE="$PBS_O_WORKDIR/scomatic-run.log"
 exec > >(tee -a "$LOGFILE") 2>&1
 
 echo "[INFO] SComatic pipeline started at $(date)"
@@ -44,10 +44,9 @@ base_dir="/home/users/nus/ash.ps/scratch/mulitomics/10x_data/data/breast-cancer"
 output_dir="/home/users/nus/ash.ps/scratch/mulitomics/10x_data/analysis/"
 output_dir2="$output_dir/Step2_BaseCellCounts"
 output_dir3=$output_dir/Step3_BaseCellCountsMerged
-output_dir5="$output_dir/TrinucleotideContextBackground"
 
 
-mkdir -p $output_dir3 $output_dir5
+mkdir -p $output_dir3
 
 # ------------------------------------------------------------------------------
 # ABsecellcount-merge
@@ -64,8 +63,15 @@ output_dir8=$output_dir/TrinucleotideContext
 output_dir4=$output_dir/Step4_VariantCalling
 mkdir -p $output_dir8
 
-echo ${output_dir4}/${project}.calling.step1.tsv > ${output_dir8}/step1_files.txt
+# List all available step1 files into the input list
+ls ${output_dir4}/bc.*_filtered.calling.step1.tsv > ${output_dir8}/step1_files.txt
 
+# Confirm the files have been listed
+echo "[INFO] Using the following input files for trinucleotide context:"
+cat ${output_dir8}/step1_files.txt
+
+# Run the trinucleotide context background script with all files
 python $SCOMATIC/scripts/TrinucleotideBackground/TrinucleotideContextBackground.py \
-        --in_tsv ${output_dir8}/step1_files.txt \
-        --out_file ${output_dir8}/TrinucleotideBackground.txt
+    --in_tsv ${output_dir8}/step1_files.txt \
+    --out_file ${output_dir8}/TrinucleotideBackground.txt
+
