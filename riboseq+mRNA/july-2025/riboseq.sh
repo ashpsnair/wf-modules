@@ -23,40 +23,34 @@ day20_vs_day0,treatment,control,day20
 #script
 
 #!/bin/bash
-
+  
 #PBS -l select=3:ncpus=64:mem=256g
-#PBS -l walltime=10:00:00
+#PBS -l walltime=24:00:00
 #PBS -P 11003581
-#PBS -N run-riboseq
+#PBS -N run-riboseq-singu
 #PBS -j oe
 
-# Change to the directory where the job was submitted 
-cd $PBS_O_WORKDIR
+cd /scratch/users/nus/ash.ps/JQQ/analysis-july/sing0riboseq
 
 module load java/17.0.6-jdk
-module load miniforge3
+module load singularity/3.10.0
+module load nextflow/25.04.6
 
-export CACHE=/home/project/11003581/Tools/nf-conda-cache
-export PATH=$CACHE/bin:$PATH                   # makes micromamba discoverable
-export MAMBA_ROOT_PREFIX=$CACHE/root           # where micromamba keeps “base”
-export NXF_MAMBA_EXE=$CACHE/bin/micromamba     # tell Nextflow exactly which mamba
-export NXF_CONDA_USE_MAMBA=true
-export NXF_CONDA_CACHEDIR=$CACHE/envs          # per-process envs live here
-export CONDA_PKGS_DIRS=$CACHE/pkgs             # shared package tarballs
+export NXF_SINGULARITY_CACHEDIR=/home/project/11003581/Tools/singularity-cache/
+export SINGULARITY_CACHEDIR=/home/project/11003581/Tools/singularity-cache/
 
-WORKDIR=/home/users/nus/ash.ps/scratch/JQQ/analysis-july/riboseq-nf-core
-GTF=/home/project/11003581/Ref/Homo_sapiens/UCSC/hg38/Annotation/Genes/genes.gtf
-FASTA=/home/project/11003581/Ref/Homo_sapiens/UCSC/hg38/Sequence/WholeGenomeFasta/genome.fa
+WORKDIR=/scratch/users/nus/ash.ps/JQQ/analysis-july/sing0riboseq
+GTF=/home/users/nus/ash.ps/scratch/refs/Homo_sapiens.GRCh38.114.gtf.gz
+FASTA=/home/users/nus/ash.ps/scratch/refs/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
 
-/home/project/11003581/Tools/nextflow.24.10.6 run nf-core/riboseq \
-   -profile conda \
+nextflow run nf-core/riboseq -r 1.1.0 \
+   -profile singularity \
+   -c $WORKDIR/hpc.config \
    --input $WORKDIR/samplesheet.csv \
    --contrasts $WORKDIR/contrasts.csv \
    --outdir $WORKDIR \
    --gtf $GTF \
    --fasta $FASTA \
-   --remove_ribo_rna true \
-   --extra_featurecounts_args "-t CDS" \
-   --email ash.ps@nus.edu.sg
+   --remove_ribo_rna true
 
 
