@@ -1,0 +1,141 @@
+# ====== Creating longest_cds.transcript_info.tsv ======
+
+#save the below script as generate_transcript_info.R
+
+#!/usr/bin/env Rscript
+
+suppressPackageStartupMessages(library(optparse))
+
+option_list <- list(make_option(c("-g", "--gtf"), action = "store", type = "character", default=NA, help = "GTF annotation file"),
+                    make_option(c("-o", "--org"), action = "store", type = "character", default=NA, help = "string specifying organism name"))
+opt_parser = OptionParser(option_list = option_list)
+opt <- parse_args(opt_parser)
+
+suppressPackageStartupMessages(library(GenomicFeatures))
+suppressPackageStartupMessages(library(rtracklayer))
+suppressPackageStartupMessages(library(data.table))
+suppressPackageStartupMessages(library(tidyverse))
+
+make_txdb <- function(gtf, org) {
+  
+  # Get name of db
+  name <- paste0(str_split(gtf, ".gtf")[[1]][1], ".sqlite")
+  
+  if (file.exists(name)) {
+    
+    TxDb <- loadDb(name)
+    
+  } else {
+    
+    TxDb <- makeTxDbFromGFF(gtf, format="gtf",
+                            organism = org) # chrominfo = seqinfo(TxDb.Hsapiens.UCSC.hg38.knownGene
+    
+    saveDb(TxDb, file=name)
+    # TxDb <- loadDb(name)
+  }
+  
+  # TxDb <- keepStandardChromosomes(TxDb, pruning.mode="coarse")
+  return(TxDb)
+}
+
+
+txdb <- make_txdb(opt$gtf, opt$org)
+
+txlengths <- transcriptLengths(txdb, with.cds_len = TRUE,
+                               with.utr5_len = TRUE,
+                               with.utr3_len = TRUE)
+
+txlengths.dt <- data.table(txlengths, key = c("tx_name", "gene_id"))
+pc = c("protein_coding", "IG_V_gene", "TR_V_gene", "IG_C_gene", "IG_J_gene", "TR_J_gene", "TR_C_gene", "IG_D_gene", "TR_D_gene")
+
+
+gtf <- import.gff2(opt$gtf)
+filtered_gtf <- gtf[!(gtf$tag %in% c("cds_end_NF", "mRNA_end_NF", "cds_start_NF", "mRNA_start_NF"))]
+# filtered_gtf <- filtered_gtf[filtered_gtf$transcript_support_level %in% 1:2]
+
+
+gtf.df <- as.data.frame(filtered_gtf)
+gtf.dt <- data.table(gtf.df, key = c("transcript_id", "gene_id"))
+gtf.dt <- gtf.dt[txlengths.dt]
+
+if ("gene_type" %in% colnames(gtf.df) & "transcript_type" %in% colnames(gtf.df)) {
+  # Gencode
+  longest.pc.dt <- gtf.dt[gene_type %in% pc & transcript_type %in% pc, longest := max(cds_len), by = gene_id] # select out where both are protein coding as sometimes a processed transcript is the longest
+  longest.pc.dt <- longest.pc.dt[gene_type %in% pc & transcript_type %in% pc & cds_len == longest] # selects longest
+
+} else if ("gene_biotype" %in% colnames(gtf.df) & "transcript_biotype" %in% colnames(gtf.df)) {
+  # Ensembl
+  longest.pc.dt <- gtf.dt[gene_biotype %in% pc & transcript_biotype %in% pc, longest := max(cds_len), by = gene_id] # select out where both are protein coding as sometimes a processed transcript is the longest
+  longest.pc.dt <- longest.pc.dt[gene_biotype %in% pc & transcript_biotype %in% pc & cds_len == longest] # selects longest
+} else {
+
+  stop("Your GTF cannot be used to select a representative transcript per gene. Either use your own transcript info file, or use Gencode or Ensembl annotations")
+}
+
+# # Filter out tx with cds length 0 if any
+# longest.pc.dt <- longest.pc.dt %>%
+#   dplyr::filter(cds_len >= 30)
+
+# Hierarchy: CDS > tx_len > n_exon > UTR3 > UTR3
+longest.pc.dt <- longest.pc.dt %>% 
+  arrange(desc(cds_len), desc(longest), desc(nexon), desc(utr5_len), desc(utr3_len))
+
+unique.longest.pc.dt <- longest.pc.dt[!duplicated(longest.pc.dt$gene_id), ] 
+
+# Gene_name is gene in ncbi refseq, so rename gene col so steps below work
+if (!"gene_name" %in% colnames(unique.longest.pc.dt) & "gene" %in% colnames(unique.longest.pc.dt)) {
+    unique.longest.pc.dt <- unique.longest.pc.dt %>%
+      dplyr::rename(gene_name = gene)
+
+} 
+
+tx.info.dt <- unique.longest.pc.dt %>%
+  dplyr::filter(cds_len > 0) %>%
+  rowwise() %>%
+  mutate(cds_start = utr5_len + 1, cds_end = utr5_len + cds_len) %>%
+  ungroup() %>%
+  dplyr::select(gene_name, gene_id, transcript_id, cds_start, cds_len, tx_len, cds_end) %>%
+  dplyr::rename(cds_length = cds_len, tx_length = tx_len)
+
+
+output_prefix <- str_split(basename(opt$gtf), ".gtf")[[1]][1]
+tx_info_name <- paste0(output_prefix , ".longest_cds.transcript_info.tsv")
+
+# Export transcript info
+fwrite(tx.info.dt, tx_info_name, sep = "\t")
+
+# Export subset of GTF of selected transcripts
+filtered_annotations <- subset(gtf, transcript_id %in% tx.info.dt$transcript_id)
+gtf_name <- paste0(output_prefix , ".longest_cds_transcripts.gtf")
+export.gff2(filtered_annotations, gtf_name)
+
+#after saving it, run it as below
+Rscript generate_transcript_info.R \
+  --gtf /home/users/nus/ash.ps/scratch/refs/Homo_sapiens.GRCh38.114.gtf \
+  --org "Homo sapiens"
+
+
+
+# ====== Creating the de-dup files ======
+#!/bin/bash
+
+bamdir="/home/users/nus/ash.ps/scratch/JQQ/analysis-july/mamba/alignment/star/sorted"
+outdir="/home/users/nus/ash.ps/scratch/JQQ/analysis-july/downstream/riboseqc"
+
+mkdir -p "$outdir"
+
+for bamfile in "$bamdir"/Ribo*.transcriptome.sorted.bam; do
+  sample=$(basename "$bamfile" .transcriptome.sorted.bam)
+  outfile="$outdir/${sample}.before_dedup.csv"
+
+  echo "Processing $sample"
+
+  samtools view "$bamfile" | \
+    awk '{print length($10)}' | \
+    sort | uniq -c | \
+    awk '{print $2 "," $1}' > "$outfile"
+
+  sed -i '1i length,n_bam' "$outfile"
+done
+
+echo "✅ Done. CSVs saved in: $outdir"
