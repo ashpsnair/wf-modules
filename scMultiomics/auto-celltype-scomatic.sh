@@ -33,9 +33,9 @@ module load python/3.12.1-gcc11
 project="bc"
 SCOMATIC="/home/project/11003581/Tools/SComatic"
 
-base_dir="/home/users/nus/ash.ps/scratch/mulitomics/10x_data/data"
-output_dir="/home/users/nus/ash.ps/scratch/mulitomics/10x_data/analysis/"
-meta_celltype="/home/users/nus/ash.ps/scratch/mulitomics/10x_data/data/cell_barcode_annotations.tsv"
+base_dir="/home/users/nus/ash.ps/scratch/mulitomics/"
+output_dir="/home/users/nus/ash.ps/scratch/mulitomics/analysis/"
+meta_celltype="/home/users/nus/ash.ps/scratch/mulitomics/cell_type_annotations.tsv"
 REF="/home/project/11003581/Ref/Homo_sapiens/UCSC/hg38/Sequence/WholeGenomeFasta/genome.fa"
 editing="$SCOMATIC/RNAediting/AllEditingSites.hg38.txt"
 PON="$SCOMATIC/PoNs/PoN.scRNAseq.hg38.tsv"
