@@ -10,11 +10,20 @@ B2_KO,XX,1,KO_P30_9,1,/home/project/11003581/Data/sep-function/b1-fastqs/KO/KO_P
 B2_KO,XX,1,KO_P30_10,1,/home/project/11003581/Data/sep-function/b1-fastqs/KO/KO_P30_10/KO_P30_7_EDHG220013958-2a_HL5Y2DSX3_L2_1.fq.gz,/home/project/11003581/Data/sep-function/b1-fastqs/KO/KO_P30_10/KO_P30_7_EDHG220013958-2a_HL5Y2DSX3_L2_2.fq.gz
 
 
+
+
+
+
+
+
 patient,sex,status,sample,lane,fastq_1,fastq_2
-B2_KO,XX,1,KO_P30_1,1,/home/project/11003581/Data/sep-function/b1-fastqs/KO/KO_P30_1/KO_P30_1_EDHG210027037-1a_HTVMVDSX2_L2_1.fq.gz,/home/project/11003581/Data/sep-function/b1-fastqs/KO/KO_P30_1/KO_P30_1_EDHG210027037-1a_HTVMVDSX2_L2_2.fq.gz
-B2_KO,XX,1,KO_P30_2,1,
-B2_KO,XX,1,KO_P30_3,1,
-B2_KO,XX,1,KO_P30_B,1,
+B2_KO,XX,1,KO_P30_1,2,/home/project/11003581/Data/sep-function/b1-fastqs/KO/KO_P30_1/KO_P30_1_EDHG210027037-1a_HTVMVDSX2_L2_1.fq.gz,/home/project/11003581/Data/sep-function/b1-fastqs/KO/KO_P30_1/KO_P30_1_EDHG210027037-1a_HTVMVDSX2_L2_2.fq.gz
+B2_KO,XX,1,KO_P30_1,4,/home/project/11003581/Data/sep-function/b1-fastqs/KO/KO_P30_1/KO_P30_1_EDHG210027037-1a_HVCK3DSX2_L4_1.fq.gz,/home/project/11003581/Data/sep-function/b1-fastqs/KO/KO_P30_1/KO_P30_1_EDHG210027037-1a_HVCK3DSX2_L4_2.fq.gz
+B2_KO,XX,1,KO_P30_2,2,/home/project/11003581/Data/sep-function/b1-fastqs/KO/KO_P30_2/KO_P30_2_EDHG210027038-1a_HTVMVDSX2_L2_1.fq.gz,/home/project/11003581/Data/sep-function/b1-fastqs/KO/KO_P30_2/KO_P30_2_EDHG210027038-1a_HTVMVDSX2_L2_2.fq.gz
+B2_KO,XX,1,KO_P30_2,4,/home/project/11003581/Data/sep-function/b1-fastqs/KO/KO_P30_2/KO_P30_2_EDHG210027038-1a_HVCK3DSX2_L4_1.fq.gz,/home/project/11003581/Data/sep-function/b1-fastqs/KO/KO_P30_2/KO_P30_2_EDHG210027038-1a_HVCK3DSX2_L4_2.fq.gz
+B2_KO,XX,1,KO_P30_3,1,/home/project/11003581/Data/sep-function/b1-fastqs/KO/KO_P30_3/KO_P30_3_EDHG210027039-1a_HVCKJDSX2_L4_1.fq.gz,/home/project/11003581/Data/sep-function/b1-fastqs/KO/KO_P30_3/KO_P30_3_EDHG210027039-1a_HVCKJDSX2_L4_2.fq.gz
+B2_KO,XX,1,KO_P30_B,1,/home/project/11003581/Data/sep-function/b1-fastqs/KO/KO_P30_B/KO_P30_B_EDHG210027036-1a_HVCKJDSX2_L4_1.fq.gz,/home/project/11003581/Data/sep-function/b1-fastqs/KO/KO_P30_B/KO_P30_B_EDHG210027036-1a_HVCKJDSX2_L4_2.fq.gz
+
 
 ####################### Script #################
 
@@ -23,7 +32,7 @@ B2_KO,XX,1,KO_P30_B,1,
 #PBS -l select=1:ncpus=128:mem=256g
 #PBS -l walltime=24:00:00
 #PBS -P 11003581
-#PBS -N run-KO
+#PBS -N run-KO-b2
 #PBS -j oe
 
 # Change to the directory where the job was submitted 
@@ -35,9 +44,9 @@ module load miniforge3
 export NXF_CONDA_CACHEDIR=/home/project/11003581/Tools/nf-conda-cache
 export NXF_CONDA_USE_MAMBA=true
 
-WORKDIR=/home/users/nus/ash.ps/scratch/sep-fun-analysis/KO/b1
+WORKDIR=/home/users/nus/ash.ps/scratch/sep-fun-analysis/KO/b2
 
 nextflow run nf-core/sarek -r 3.5.1 \
-   -profile conda \
+   -profile mamba \
    --input $WORKDIR/samplesheet.csv \
-   --outdir $WORKDIR \
+   --outdir $WORKDIR

@@ -13,18 +13,20 @@ D2H,XX,1,D2H_P30_10,1,/home/project/11003581/Data/sep-function/b1-fastqs/D2H/D2H
 
 #b4
 patient,sex,status,sample,lane,fastq_1,fastq_2
-D2H,XX,1,D2H_P30_1,1,
-D2H,XX,1,D2H_P30_2,1,
-D2H,XX,1,D2H_P30_3,1,
-D2H,XX,1,D2H_P30_B,1,
+D2H,XX,1,D2H_P30_1,1,/home/project/11003581/Data/sep-function/b1-fastqs/D2H/D2H_P30_1/D2H_P30_1_EDHG210027049-1a_HTVMVDSX2_L3_1.fq.gz,/home/project/11003581/Data/sep-function/b1-fastqs/D2H/D2H_P30_1/D2H_P30_1_EDHG210027049-1a_HTVMVDSX2_L3_2.fq.gz
+D2H,XX,1,D2H_P30_1,1,/home/project/11003581/Data/sep-function/b1-fastqs/D2H/D2H_P30_1/D2H_P30_1_EDHG210027049-1a_HVCK3DSX2_L3_1.fq.gz,/home/project/11003581/Data/sep-function/b1-fastqs/D2H/D2H_P30_1/D2H_P30_1_EDHG210027049-1a_HVCK3DSX2_L3_2.fq.gz
+D2H,XX,1,D2H_P30_2,1,/home/project/11003581/Data/sep-function/b1-fastqs/D2H/D2H_P30_2/D2H_P30_2_EDHG210027050-1a_HTV5MDSX2_L4_1.fq.gz,/home/project/11003581/Data/sep-function/b1-fastqs/D2H/D2H_P30_2/D2H_P30_2_EDHG210027050-1a_HTV5MDSX2_L4_2.fq.gz
+D2H,XX,1,D2H_P30_3,1,/home/project/11003581/Data/sep-function/b1-fastqs/D2H/D2H_P30_3/D2H_P30_3_EDHG210027051-1a_HTV5MDSX2_L4_1.fq.gz,/home/project/11003581/Data/sep-function/b1-fastqs/D2H/D2H_P30_3/D2H_P30_3_EDHG210027051-1a_HTV5MDSX2_L4_2.fq.gz
+D2H,XX,1,D2H_P30_B,1,/home/project/11003581/Data/sep-function/b1-fastqs/D2H/D2H_P30_B/D2H_P30_B_EDHG210027048-1a_HVCKJDSX2_L2_1.fq.gz,/home/project/11003581/Data/sep-function/b1-fastqs/D2H/D2H_P30_B/D2H_P30_B_EDHG210027048-1a_HVCKJDSX2_L2_2.fq.gz
+
 
 ##script
 /home/users/nus/ash.ps/scratch/sep-fun-analysis/D2H/b1
 
 #!/bin/bash
 
-#PBS -l select=1:ncpus=128:mem=256g
-#PBS -l walltime=24:00:00
+#PBS -l select=1:ncpus=128:mem=128g
+#PBS -l walltime=14:00:00
 #PBS -P 11003581
 #PBS -N run-D2H
 #PBS -j oe
@@ -38,9 +40,9 @@ module load miniforge3
 export NXF_CONDA_CACHEDIR=/home/project/11003581/Tools/nf-conda-cache
 export NXF_CONDA_USE_MAMBA=true
 
-WORKDIR=/home/users/nus/ash.ps/scratch/sep-fun-analysis/D2H/b1
+WORKDIR=/home/users/nus/ash.ps/scratch/sep-fun-analysis/D2H/b2
 
 nextflow run nf-core/sarek -r 3.5.1 \
-   -profile conda \
+   -profile mamba \
    --input $WORKDIR/samplesheet.csv \
-   --outdir $WORKDIR \
+   --outdir $WORKDIR

@@ -13,19 +13,22 @@ WT,XX,1,WT_P30_9,1,/home/project/11003581/Data/sep-function/b1-fastqs/WT/WT_P30_
 WT,XX,1,WT_P30_10,1,/home/project/11003581/Data/sep-function/b1-fastqs/WT/WT_P30_10/WT_P30_7_EDHG220013944-3a_HKFNWDSX3_L1_1.fq.gz,/home/project/11003581/Data/sep-function/b1-fastqs/WT/WT_P30_10/WT_P30_7_EDHG220013944-3a_HKFNWDSX3_L1_2.fq.gz
 
 
+
 #b4
 patient,sex,status,sample,lane,fastq_1,fastq_2
-WT,XX,1,WT_P30_1,1,/home/project/11003581/Data/sep-function/b1-fastqs/WT/WT_P30_1/WT_P30_1_EDHG210027025-1a_HVCK3DSX2_L4_1.fq.gz,/home/project/11003581/Data/sep-function/b1-fastqs/WT/WT_P30_1/WT_P30_1_EDHG210027025-1a_HVCK3DSX2_L4_2.fq.gz
-WT,XX,1,WT_P30_2,1,
-WT,XX,1,WT_P30_3,1,
-WT,XX,1,WT_P30_B,1,
+WT,XX,1,WT_P30_1,4,/home/project/11003581/Data/sep-function/b1-fastqs/WT/WT_P30_1/WT_P30_1_EDHG210027025-1a_HVCK3DSX2_L4_1.fq.gz,/home/project/11003581/Data/sep-function/b1-fastqs/WT/WT_P30_1/WT_P30_1_EDHG210027025-1a_HVCK3DSX2_L4_2.fq.gz
+WT,XX,1,WT_P30_1,3,/home/project/11003581/Data/sep-function/b1-fastqs/WT/WT_P30_1/WT_P30_1_EDHG210027025-1a_HVCKJDSX2_L3_1.fq.gz,/home/project/11003581/Data/sep-function/b1-fastqs/WT/WT_P30_1/WT_P30_1_EDHG210027025-1a_HVCKJDSX2_L3_2.fq.gz
+WT,XX,1,WT_P30_2,1,/home/project/11003581/Data/sep-function/b1-fastqs/WT/WT_P30_2/WT_P30_2_EDHG210027026-1a_HVCKJDSX2_L1_1.fq.gz,/home/project/11003581/Data/sep-function/b1-fastqs/WT/WT_P30_2/WT_P30_2_EDHG210027026-1a_HVCKJDSX2_L1_2.fq.gz
+WT,XX,1,WT_P30_3,1,/home/project/11003581/Data/sep-function/b1-fastqs/WT/WT_P30_3/WT_P30_3_EDHG210027027-1a_HVCKJDSX2_L1_1.fq.gz,/home/project/11003581/Data/sep-function/b1-fastqs/WT/WT_P30_3/WT_P30_3_EDHG210027027-1a_HVCKJDSX2_L1_2.fq.gz
+
+
 
 #!/bin/bash
 
-#PBS -l select=1:ncpus=128:mem=256g
-#PBS -l walltime=24:00:00
+#PBS -l select=1:ncpus=128:mem=128g
+#PBS -l walltime=10:00:00
 #PBS -P 11003581
-#PBS -N run-WT
+#PBS -N run-WT-b2
 #PBS -j oe
 
 # Change to the directory where the job was submitted 
@@ -37,9 +40,9 @@ module load miniforge3
 export NXF_CONDA_CACHEDIR=/home/project/11003581/Tools/nf-conda-cache
 export NXF_CONDA_USE_MAMBA=true
 
-WORKDIR=/home/users/nus/ash.ps/scratch/sep-fun-analysis/WT/b1
+WORKDIR=/home/users/nus/ash.ps/scratch/sep-fun-analysis/WT/b2
 
 nextflow run nf-core/sarek -r 3.5.1 \
-   -profile conda \
+   -profile mamba \
    --input $WORKDIR/samplesheet.csv \
    --outdir $WORKDIR
