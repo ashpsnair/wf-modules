@@ -2,7 +2,7 @@
 
 #PBS -l select=1:ncpus=128:mem=256g
 #PBS -l walltime=24:00:00
-#PBS -P 11003581
+#PBS -P personal-ash.ps
 #PBS -N run-riboseq-mamba
 #PBS -j oe
 
