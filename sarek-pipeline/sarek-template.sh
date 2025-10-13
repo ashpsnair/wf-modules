@@ -11,10 +11,11 @@ cd $PBS_O_WORKDIR
 
 
 module load java/17.0.6-jdk
-module load singularity
+module load nextflow/24.10.5
+module load miniforge3
 
-/home/project/11003581/Tools/nextflow run nf-core/sarek -r 3.4.4 \
-   -profile singularity \
+nextflow run nf-core/sarek -r 3.5.1 \
+   -profile mamba \
    --input /home/users/nus/ash.ps/scratch/T2DM/analysis-PD/samplesheet.csv \
    --outdir /home/users/nus/ash.ps/scratch/T2DM/analysis-PD \
    --tools mutect2,manta \
