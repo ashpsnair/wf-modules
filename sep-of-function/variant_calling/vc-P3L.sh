@@ -17,7 +17,7 @@ BRCA2_P3292L,XX,1,P_15_10,/home/users/nus/ash.ps/scratch/sep-fun-analysis/BRCA2_
 #PBS -l select=3:ncpus=64:mem=128g
 #PBS -l walltime=24:00:00
 #PBS -P 11003581
-#PBS -N B1_R133C-vc
+#PBS -N P3L
 #PBS -j oe
 
 # Change to the directory where the job was submitted 
@@ -35,7 +35,9 @@ nextflow run nf-core/sarek -r 3.5.1 \
    -profile mamba \
    --input $WORKDIR/samplesheet.csv \
    --outdir $WORKDIR \
+   --step variant_calling \
    --tools mutect2,strelka,ascat,manta,snpeff,vep,msisensorpro \
+   --joint_mutect2 \
    --pon /home/project/11003581/Ref/pons/somatic-hg38_1000g_pon.hg38.vcf.gz \
    --pon_tbi /home/project/11003581/Ref/pons/somatic-hg38_1000g_pon.hg38.vcf.gz.tbi
 
