@@ -214,3 +214,8 @@ for st_vcf in "${STRELKA_MERGED_DIR}"*.merged.vcf.gz; do
 done
 
 echo "[DONE] Summary written to: $SUMMARY_TSV"
+
+
+
+
+/home/project/11003581/Ref/Homo_sapiens/GATK/hg38/Homo_sapiens_assembly38.fasta
