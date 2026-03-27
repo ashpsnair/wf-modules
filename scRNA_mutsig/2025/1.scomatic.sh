@@ -40,9 +40,9 @@ module load python/3.12.1-gcc11
 project="Example"
 SCOMATIC="/home/project/11003581/Tools/SComatic"
 
-base_dir="/home/users/nus/ash.ps/scratch/mulitomics/example/data"
-output_dir="/home/users/nus/ash.ps/scratch/mulitomics/example/analysis/"
-meta_celltype="/home/users/nus/ash.ps/scratch/mulitomics/example/data/Example.cell_barcode_annotations.tsv"
+base_dir="/home/users/nus/ash.ps/scratch/scRNA-mutsig/data"
+output_dir="/home/users/nus/ash.ps/scratch/scRNA-mutsig/analysis"
+meta_celltype="/home/users/nus/ash.ps/scratch/scRNA-mutsig/data/cell_annotation_AMPK.txt"
 
 output_dir1="$output_dir/Step1_BamCellTypes"
 filtered_out="$output_dir1/filtered"
@@ -91,48 +91,3 @@ done
 echo "[STEP 1.2] Done"
 
 echo "[STEP 1] Done"
-
-# ------------------------------------------------------------------------------
-# STEP 2: BASE COUNTING + VARIANT CALLING
-# ------------------------------------------------------------------------------
-echo "[STEP 2 & 3] Starting at $(date)"
-
-for bam in "$filtered_out"/*.bam; do
-    cell_name=$(basename "$bam" .bam) 
-    temp="$output_dir2/temp_${cell_name}"
-    mkdir -p "$temp"
-
-    echo "[STEP 2] BaseCellCounter for $cell_name"
-    python "$SCOMATIC/scripts/BaseCellCounter/BaseCellCounter.py" \
-        --bam "$bam" \
-        --ref "$REF" \
-        --chrom all \
-        --out_folder "$output_dir2" \
-        --min_bq 20 \
-        --min_ac 1 \
-        --min_af 0.01 \
-        --min_dp 2 \
-        --min_cc 1 \
-        --tmp_dir "$temp" \
-        --nprocs 128
-
-    echo "[STEP 3.1] Variant calling step 1 for $cell_name"
-    python "$SCOMATIC/scripts/BaseCellCalling/BaseCellCalling.step1.py" \
-        --infile "${output_dir2}/${cell_name}.tsv" \
-        --outfile "${output_dir4}/${cell_name}" \
-        --ref "$REF"
-
-    echo "[STEP 3.2] Variant calling step 2 for $cell_name"
-    python "$SCOMATIC/scripts/BaseCellCalling/BaseCellCalling.step2.py" \
-        --infile "${output_dir4}/${cell_name}.calling.step1.tsv" \
-        --outfile "${output_dir4}/${cell_name}" \
-        --editing "$editing" \
-        --pon "$PON" \
-        --verbose
-
-    echo "[INFO] Cleanup: $temp"
-    rm -rf "$temp"
-done
-
-echo "[DONE] SComatic full pipeline completed at $(date)"
-
