@@ -1,4 +1,3 @@
-# By removing reads mapped to non-canonical or extraneous contigs and retaining only standard human chromosomes, 
 #!/bin/bash
 #PBS -N clean_RNA_BAMs
 #PBS -l select=1:ncpus=128:mem=256gb
