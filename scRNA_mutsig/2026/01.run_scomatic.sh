@@ -4,105 +4,99 @@
 #PBS -l walltime=10:00:00
 #PBS -P 11003581
 #PBS -j oe
-#PBS -N scomatic-step2-3
+#PBS -N scomatic-clean
 
+# ------------------------------------------------------------------------------
+# SAFETY & LOGGING
+# ------------------------------------------------------------------------------
 set -euo pipefail
 cd "$PBS_O_WORKDIR"
 
-LOGFILE="$PBS_O_WORKDIR/scomatic-step2-3.log"
+LOGFILE="$PBS_O_WORKDIR/scomatic-clean.log"
 exec > >(tee -a "$LOGFILE") 2>&1
 
-echo "[INFO] Resuming Step 2 + 3 at $(date)"
+echo "[INFO] Starting clean SComatic run at $(date)"
 
 # ------------------------------------------------------------------------------
-# ENVIRONMENT
+# ENVIRONMENT (KEEP EXACTLY AS YOUR WORKING SETUP)
 # ------------------------------------------------------------------------------
 source /home/project/11003581/Tools/miniforge3/bin/activate
 conda activate /home/project/11003581/conda-envs/scMultiomics
 
+module load gcc
+module load intel/2024.0
+module load libfabric/1.11.0.4.125
+module load hdf5/1.12.1-parallel-icc23-cmpi
+module load gsl/2.7.1-gcc11
+module load r/4.2.0
 module load samtools/1.15.1
-module load python/3.12.1-gcc11
 module load bedtools/2.30.0
+module load python/3.12.1-gcc11
 
-echo "[INFO] Starting GLOBAL SComatic pipeline"
-
-############################################################
-# INPUTS
-############################################################
-
-base_dir="/home/users/nus/ash.ps/scratch/scRNA-mutsig"
-bam="$base_dir/data/Breast_Cancer_3p_possorted_genome_bam.bam"
-meta="$base_dir/cell_annotation_AMPK.txt"
-
+# ------------------------------------------------------------------------------
+# PATHS
+# ------------------------------------------------------------------------------
 SCOMATIC="/home/project/11003581/Tools/SComatic"
+
+base_dir="/home/users/nus/ash.ps/scratch/scRNA-mutsig/data"
+output_dir="/home/users/nus/ash.ps/scratch/scRNA-mutsig/analysis"
+
+output_dir2="$output_dir/Step2_BaseCellCounts"
+output_dir4="$output_dir/Step4_VariantCalling"
 
 REF="/home/project/11003581/Ref/Homo_sapiens/GATK/hg38/Homo_sapiens_assembly38.fasta"
 editing="$SCOMATIC/RNAediting/AllEditingSites.hg38.txt"
 
-outdir="$base_dir/scomatic_global"
-mkdir -p $outdir
+threads=128
 
-############################################################
-# STEP 1 — Split BAM by decile (ONLY FOR LABELING)
-############################################################
+mkdir -p "$output_dir2" "$output_dir4"
 
-echo "[STEP 1] Splitting BAM by AMPK deciles"
+# ------------------------------------------------------------------------------
+# INPUT BAM
+# ------------------------------------------------------------------------------
+bam_file="$base_dir/Breast_Cancer_3p_possorted_genome_bam.bam"
 
-python $SCOMATIC/scripts/SplitBam/SplitBamCellTypes.py \
-  --bam "$bam" \
-  --meta "$meta" \
-  --id "AMPK" \
-  --outdir "$outdir/Step1_split"
+echo "[INFO] Using BAM: $bam_file"
+
+# ------------------------------------------------------------------------------
+# STEP 1 — BaseCellCounter
+# ------------------------------------------------------------------------------
+echo "[STEP 1] BaseCellCounter"
+
+python "$SCOMATIC/scripts/BaseCellCounter/BaseCellCounter.py" \
+    --bam "$bam_file" \
+    --ref "$REF" \
+    --chrom all \
+    --out_folder "$output_dir2" \
+    --min_bq 20 \
+    --min_ac 1 \
+    --min_af 0.01 \
+    --min_dp 2 \
+    --min_cc 1 \
+    --nprocs "$threads"
 
 echo "[STEP 1 DONE]"
 
-############################################################
-# STEP 2 — Merge BAMs back (IMPORTANT TRICK)
-############################################################
+# ------------------------------------------------------------------------------
+# STEP 2 — Variant calling step1
+# ------------------------------------------------------------------------------
+echo "[STEP 2] Step1 variant calling"
 
-echo "[STEP 2] Merging BAMs back for GLOBAL calling"
-
-samtools merge -@ 32 $outdir/merged.bam $outdir/Step1_split/*.bam
-samtools index $outdir/merged.bam
+python "$SCOMATIC/scripts/BaseCellCalling/BaseCellCalling.step1.py" \
+    --infile "$output_dir2/"*.tsv \
+    --outfile "$output_dir4/merged" \
+    --ref "$REF"
 
 echo "[STEP 2 DONE]"
 
-############################################################
-# STEP 3 — BaseCellCounter (GLOBAL)
-############################################################
+# ------------------------------------------------------------------------------
+# STEP 3 — Variant calling step2 (OPTIONAL — may be empty)
+# ------------------------------------------------------------------------------
+echo "[STEP 3] Step2 variant calling (light filter)"
 
-echo "[STEP 3] Running BaseCellCounter"
+python "$SCOMATIC/scripts/BaseCellCalling/BaseCellCalling.step2.py" \
+    --infile "$output_dir4/merged.calling.step1.tsv" \
+    --outfile "$output_dir4/merged" \
+    --editing "$editing"
 
-python $SCOMATIC/scripts/BaseCellCounter/BaseCellCounter.py \
-  --bam "$outdir/merged.bam" \
-  --ref "$REF" \
-  --chrom all \
-  --out_folder "$outdir/Step2_counts" \
-  --min_bq 20 \
-  --min_ac 1 \
-  --min_af 0.01 \
-  --min_dp 2 \
-  --min_cc 1 \
-  --nprocs 64
-
-echo "[STEP 3 DONE]"
-
-############################################################
-# STEP 4 — Variant calling (GLOBAL)
-############################################################
-
-echo "[STEP 4.1] Step1"
-
-python $SCOMATIC/scripts/BaseCellCalling/BaseCellCalling.step1.py \
-  --infile "$outdir/Step2_counts/"*.tsv \
-  --outfile "$outdir/Step4_variants/merged" \
-  --ref "$REF"
-
-echo "[STEP 4.2] Step2 (LIGHT FILTER)"
-
-python $SCOMATIC/scripts/BaseCellCalling/BaseCellCalling.step2.py \
-  --infile "$outdir/Step4_variants/merged.calling.step1.tsv" \
-  --outfile "$outdir/Step4_variants/merged" \
-  --editing "$editing"
-
-echo "[DONE] GLOBAL SComatic complete"
+echo "[DONE] SComatic run completed at $(date)"
