@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #PBS -l select=2:ncpus=64:mem=128gb
-#PBS -l walltime=03:00:00
+#PBS -l walltime=01:00:00
 #PBS -P 11003581
-#PBS -N sarek_downstream
+#PBS -N merge-multi-caller
 #PBS -j oe
 
 set -euo pipefail
@@ -25,7 +25,7 @@ REF="/home/project/11003581/Ref/Homo_sapiens/GATK/hg38/Homo_sapiens_assembly38.f
 # DIRECTORIES
 ############################################################
 
-base_dir="/home/users/nus/ash.ps/scratch/YS-organoid-downstream"
+base_dir="/home/users/nus/ash.ps/scratch/YS-organoid-downstream/analysis2"
 
 SNV_DIR="$base_dir/raw-vcfs/strelka/snv"
 INDEL_DIR="$base_dir/raw-vcfs/strelka/indel"
