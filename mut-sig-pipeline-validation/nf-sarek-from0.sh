@@ -112,7 +112,7 @@ WT,XX,1,WT_3_10,8,/home/project/11003581/Data/sep-function/WT_12May/X401SC260434
 #PBS -l select=3:ncpus=64:mem=128g
 #PBS -l walltime=24:00:00
 #PBS -P 11003581
-#PBS -N WT-new-nfsarek
+#PBS -N h2ax-new-nfsarek
 #PBS -j oe
 
 # Change to the directory where the job was submitted 
@@ -125,14 +125,11 @@ module load singularity
 export NXF_SINGULARITY_CACHEDIR=//home/users/nus/ash.ps/scratch/sing/cache/
 export SINGULARITY_CACHEDIR=/home/users/nus/ash.ps/scratch/sing/cache/
 
-WORKDIR=/home/users/nus/ash.ps/scratch/sep-fun/nf-sarek/WT-new/
+WORKDIR=/home/users/nus/ash.ps/scratch/sep-fun/nf-sarek/H2AX-new/
 
 nextflow run nf-core/sarek -r 3.5.1 \
    -profile singularity \
    --input $WORKDIR/samplesheet.csv \
    --outdir $WORKDIR \
-   --genome GATK.GRCh38 \
-   --joint_calling \
-   --tools mutect2,strelka,manta \
-   --pon /home/project/11003581/Ref/sarek-refs/Homo_sapiens/GATK/GRCh38/Annotation/GATKBundle/1000g_pon.hg38.vcf.gz \
-   --pon_tbi /home/project/11003581/Ref/sarek-refs/Homo_sapiens/GATK/GRCh38/Annotation/GATKBundle/1000g_pon.hg38.vcf.gz.tbi
+   --save_output_as_bam \
+   -params-file /home/project/11003581/Tools/nf-sarek-params.yaml

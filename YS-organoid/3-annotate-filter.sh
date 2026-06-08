@@ -186,3 +186,4 @@ cat("MAF generation complete\n")
 EOF
 
 echo "=== PIPELINE COMPLETE ==="
+
